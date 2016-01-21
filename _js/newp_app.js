@@ -18,6 +18,7 @@ function initMap() {
         title: locationItem.name
       });
     });
+    
   }).error(
     function() {
       console.log('foo');
