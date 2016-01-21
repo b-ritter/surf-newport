@@ -7,8 +7,8 @@ var gulp = require('gulp'),
     watchify = require('watchify'),
     source = require('vinyl-source-stream'),
     sourceFile = './_js/main.js',
-    destFolder = './js',
-    destFile = 'newpapp.js';
+    destFolder = './_js',
+    destFile = 'newp_app.js';
 
 gulp.task('browserify', function() {
   return browserify(sourceFile)
@@ -25,7 +25,7 @@ gulp.task('styles', function() {
 });
 
 gulp.task('watch', function(){
-  gulp.watch('scss/**/*.scss', ['styles']);
+  //gulp.watch('scss/**/*.scss', ['styles']);
 
   var bundler = watchify(sourceFile);
   bundler.on('update', rebundle);
@@ -40,7 +40,7 @@ gulp.task('watch', function(){
 });
 
 gulp.task('min', function(){
-	return gulp.src('js/**/*.js')
+	return gulp.src('_js/**/*.js')
 		.pipe(uglify())
 		.pipe(rename({suffix: '.min'}))
 		.pipe(gulp.dest(''));

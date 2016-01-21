@@ -1,17 +1,17 @@
 [
   {
     "name": "32nd Street",
-    "location": [ 33.6137462, -117.9354643 ],
+    "location": [ 33.613733, -117.934251 ],
     "type": "surf"
   },
   {
     "name": "Blackies",
-    "location": [ 33.610499, -117.9318392 ],
+    "location": [ 33.609367, -117.930719 ],
     "type": "surf"
   },
   {
     "name": "56th Street",
-    "location": [ 33.6225695, -117.9469478 ],
+    "location": [ 33.623331, -117.946965 ],
     "type": "surf"
   },
   {
@@ -26,7 +26,7 @@
   },
   {
     "name": "The Attic",
-    "location": [ 33.6624184, -117.9673762 ],
+    "location": [ 33.662309, -117.896880 ],
     "type": "retail"
   },
   {
