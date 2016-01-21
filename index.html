@@ -22,13 +22,16 @@
         width: 25vw;
         height: 75vh;
       }
+      li {
+        list-style-type: none;
+      }
     </style>
   </head>
   <body>
     <div id="search">
       <input type="text" name="mapFilter" value="Search">
-      <ul data-bind="" id="location-list">
-        <li data-bind="" id="location-item"></li>
+      <ul data-bind="foreach: locations" id="location-list">
+        <li data-bind="text: $data.locName, click: $parent.showLocation"></li>
       </ul>
     </div>
     <div id="map">
