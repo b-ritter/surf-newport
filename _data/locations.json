@@ -1,0 +1,57 @@
+[
+  {
+    "locName": "32nd Street",
+    "location": [ 33.613733, -117.934251 ],
+    "type": "surf"
+  },
+  {
+    "locName": "Blackies",
+    "location": [ 33.609367, -117.930719 ],
+    "type": "surf"
+  },
+  {
+    "locName": "56th Street",
+    "location": [ 33.623331, -117.946965 ],
+    "type": "surf"
+  },
+  {
+    "locName": "Surfside Sports",
+    "location": [ 33.6326231, -117.9163963 ],
+    "type": "retail"
+  },
+  {
+    "locName": "Froghouse",
+    "location": [ 33.623251, -117.945774 ],
+    "type": "retail"
+  },
+  {
+    "locName": "The Attic",
+    "location": [ 33.662309, -117.896880 ],
+    "type": "retail"
+  },
+  {
+    "locName": "Volcom Skate Park",
+    "location": [ 33.6698231, -117.8953528 ],
+    "type": "skate"
+  },
+  {
+    "locName": "Banzai Bowls",
+    "location": [ 33.6285718, -117.9101281 ],
+    "type": "food"
+  },
+  {
+    "locName": "Alta",
+    "location": [ 33.6152563, -117.9286631 ],
+    "type": "food"
+  },
+  {
+    "locName": "Sidecar",
+    "location": [ 33.6325961, -117.9170776 ],
+    "type": "food"
+  },
+  {
+    "locName": "Bear Flag Fish Company",
+    "location": [ 33.6185614, -117.9291261 ],
+    "type": "food"
+  }
+]

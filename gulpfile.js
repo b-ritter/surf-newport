@@ -1,25 +1,20 @@
-var gulp = require('gulp');
-var uglify = require('gulp-uglify');
-var rename = require('gulp-rename');
-var concat = require('gulp-concat');
-var autoprefixer = require('gulp-autoprefixer');
-var sass = require('gulp-sass');
-var app_js_path = 'js/app_src/';
-var app_js = [
-  'sprite.js',
-  'stage.js',
-  'welcome.js',
-  'winner.js',
-  'lose.js',
-  'enemy.js',
-  'player.js',
-  'play.js',
-  'scorekeeper.js',
-  'player-select.js'
-];
+var gulp = require('gulp'),
+    uglify = require('gulp-uglify'),
+    rename = require('gulp-rename'),
+    autoprefixer = require('gulp-autoprefixer'),
+    sass = require('gulp-sass'),
+    browserify = require('browserify'),
+    watchify = require('watchify'),
+    source = require('vinyl-source-stream'),
+    sourceFile = './_js/main.js',
+    destFolder = './_js',
+    destFile = 'newp_app.js';
 
-app_js.forEach(function(currentValue, index, app_js){
-  app_js[index] = app_js_path + currentValue;
+gulp.task('browserify', function() {
+  return browserify(sourceFile)
+  .bundle()
+  .pipe(source(destFile))
+  .pipe(gulp.dest(destFolder));
 });
 
 gulp.task('styles', function() {
@@ -29,20 +24,23 @@ gulp.task('styles', function() {
         .pipe(gulp.dest('css/'));
 });
 
-gulp.task('concat-js', function(){
-  return gulp.src(app_js)
-    .pipe(concat('*.js'))
-    .pipe(rename('app.js'))
-    .pipe(gulp.dest('js/'));
-});
-
 gulp.task('watch', function(){
- gulp.watch('scss/**/*.scss', ['styles']);
- gulp.watch( app_js, ['concat-js']);
+  //gulp.watch('scss/**/*.scss', ['styles']);
+
+  var bundler = watchify(sourceFile);
+  bundler.on('update', rebundle);
+
+  function rebundle() {
+    return bundler.bundle()
+      .pipe(source(destFile))
+      .pipe(gulp.dest(destFolder));
+  }
+
+  return rebundle();
 });
 
 gulp.task('min', function(){
-	return gulp.src('js/**/*.js')
+	return gulp.src('_js/**/*.js')
 		.pipe(uglify())
 		.pipe(rename({suffix: '.min'}))
 		.pipe(gulp.dest(''));
@@ -50,4 +48,4 @@ gulp.task('min', function(){
 
 
 
-gulp.task('default', [ 'watch' ]);
+gulp.task('default', [ 'browserify', 'watch' ]);
