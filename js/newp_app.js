@@ -1,13 +1,16 @@
 
 var map,
+    currentItem = null,
     locationList = ko.observableArray([]);
 
+// The template for a location item
 var Loc = function(data){
   this.locName = ko.observable(data.locName);
   this.marker = ko.observable(data.marker);
   this.markerInfo = ko.observable(data.markerInfo);
 };
 
+// Define the callback function
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
     center: {lat: 33.6417186, lng: -117.9143306},
@@ -38,7 +41,11 @@ function initMap() {
     var ListViewModel = function(){
       this.locations = locationList;
       this.showLocation = function(){
+        if(currentItem !== null){
+          currentItem.markerInfo().close();
+        }
         this.markerInfo().open(map, this.marker());
+        currentItem = this;
       };
     };
 

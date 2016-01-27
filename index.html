@@ -30,7 +30,7 @@
   </head>
   <body>
     <div id="search">
-      <input type="text" name="mapFilter" value="Search">
+      <input type="text" name="mapFilter" placeholder="Search">
       <ul data-bind="foreach: locations" id="location-list">
         <li data-bind="text: $data.locName, click: $parent.showLocation"></li>
       </ul>
