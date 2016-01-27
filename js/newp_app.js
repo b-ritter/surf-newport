@@ -5,6 +5,7 @@ var map,
 var Loc = function(data){
   this.locName = ko.observable(data.locName);
   this.marker = ko.observable(data.marker);
+  this.markerInfo = ko.observable(data.markerInfo);
 };
 
 function initMap() {
@@ -22,14 +23,22 @@ function initMap() {
         map: map,
         title: locationItem.locName
       });
+      var markerInfo = new google.maps.InfoWindow(
+        {content: "<h2>"+locationItem.locName+"</h2>" }
+      );
       locationItem.marker = marker;
+      locationItem.markerInfo = markerInfo;
+      /*
+        TODO: Check if location is a surf, skate or food spot
+        Add properties accordingly
+      */
       locationList.push(new Loc(locationItem));
     });
 
     var ListViewModel = function(){
       this.locations = locationList;
       this.showLocation = function(){
-        console.log(this.marker());
+        this.markerInfo().open(map, this.marker());
       };
     };
 
