@@ -39,7 +39,30 @@ function initMap() {
     });
 
     var ListViewModel = function(){
-      this.locations = locationList;
+      var self = this;
+      this.searchTerm = ko.observable('');
+      this.locations = ko.computed(function(){
+        // console.log(locationList());
+        if(currentItem !== null){
+          currentItem.markerInfo().close();
+        }
+        var tempList = _.filter(locationList(), function(item){
+          var itemChars = item.locName().toLowerCase();
+          var searchTermChars = self.searchTerm().toLowerCase();
+          if(itemChars.indexOf(searchTermChars) !== -1){
+            return item;
+          }
+        });
+        if(tempList.length === 0){
+          return locationList();
+        } else if (tempList.length === 1){
+          currentItem = tempList[0];
+          currentItem.markerInfo().open(map, currentItem.marker());
+          return currentItem;
+        }else {
+          return tempList;
+        }
+      });
       this.showLocation = function(){
         if(currentItem !== null){
           currentItem.markerInfo().close();
@@ -48,8 +71,7 @@ function initMap() {
         currentItem = this;
       };
     };
-
-    ko.applyBindings(new ListViewModel(), document.getElementById('location-list'));
+    ko.applyBindings(new ListViewModel(), document.getElementById('search'));
 
   }).error(
     function() {
