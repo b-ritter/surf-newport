@@ -1,17 +1,26 @@
 [
   {
-    "locName": "32nd Street",
+    "locName": "Newport Jetties",
+    "spotID": "665",
     "location": [ 33.613733, -117.934251 ],
     "type": "surf"
   },
   {
     "locName": "Blackies",
+    "spotID": "2575",
     "location": [ 33.609367, -117.930719 ],
     "type": "surf"
   },
   {
-    "locName": "56th Street",
-    "location": [ 33.623331, -117.946965 ],
+    "locName": "River Jetties",
+    "spotID": "2599",
+    "location": [ 33.628515, -117.957601 ],
+    "type": "surf"
+  },
+  {
+    "locName": "The Wedge",
+    "spotID": "287",
+    "location": [ 33.593311, -117.881968 ],
     "type": "surf"
   },
   {

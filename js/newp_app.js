@@ -8,6 +8,8 @@ var Loc = function(data){
   this.locName = ko.observable(data.locName);
   this.marker = ko.observable(data.marker);
   this.markerInfo = ko.observable(data.markerInfo);
+  this.spotID = data.spotID || null;
+  this.forecast = '';
 };
 
 // Define the callback function
@@ -31,10 +33,6 @@ function initMap() {
       );
       locationItem.marker = marker;
       locationItem.markerInfo = markerInfo;
-      /*
-        TODO: Check if location is a surf, skate or food spot
-        Add properties accordingly
-      */
       locationList.push(new Loc(locationItem));
     });
 
@@ -42,7 +40,7 @@ function initMap() {
       var self = this;
       this.searchTerm = ko.observable('');
       this.locations = ko.computed(function(){
-        // console.log(locationList());
+        // Live filtering of locations
         if(currentItem !== null){
           currentItem.markerInfo().close();
         }
@@ -69,17 +67,33 @@ function initMap() {
         }
         this.markerInfo().open(map, this.marker());
         currentItem = this;
+        // console.log(currentItem);
       };
     };
     ko.applyBindings(new ListViewModel(), document.getElementById('search'));
 
-  }).error(
+  }).done(
+    function(){
+      var forecastEndpoint = 'http://magicseaweed.com/api/884371cf4fc4156f6e7320b603e18a66'+
+          '/forecast/?spot_id={spot}&units=us&fields=swell.components.*,wind.*,timestamp',
+          // Only iterate through surf spots
+          surfSpots = _.filter(locationList(),function(loc){ if(loc.spotID){ return loc; }});
+        surfSpots.forEach(function(spot){
+          // console.log(spot);
+          $.getJSON(forecastEndpoint.replace('{spot}', spot.spotID), function(){
+            console.log('foo');
+          }).error(
+            function(){
+              console.log('Error loading forecast');
+            }
+          );
+      });
+    }
+  ).error(
     function() {
-      console.log('foo');
+      console.log('Locations not found');
     }
   );
-
-
 }
 
 
