@@ -22,8 +22,7 @@ gulp.task('browser-sync', function() {
             console.log('Adding CORS header for ' + req.method + ': ' + req.url);
             res.setHeader('Access-Control-Allow-Origin', '*');
             next();
-        },
-        tunnel: 'pizza'
+        }
     });
 });
 
