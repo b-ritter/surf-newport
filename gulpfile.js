@@ -9,6 +9,23 @@ var gulp = require('gulp'),
     sourceFile = './_js/main.js',
     destFolder = './_js',
     destFile = 'newp_app.js';
+    var browserSync = require('browser-sync').create();
+
+gulp.task('browser-sync', function() {
+    browserSync.init({
+        port: 8888,
+        open: false,
+        server: {
+          baseDir: ''
+        },
+        middleware: function (req, res, next) {
+            console.log('Adding CORS header for ' + req.method + ': ' + req.url);
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            next();
+        },
+        tunnel: 'pizza'
+    });
+});
 
 gulp.task('browserify', function() {
   return browserify(sourceFile)

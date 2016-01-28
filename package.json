@@ -10,6 +10,7 @@
     "gulp-uglify": "^1.4.2",
     "browserify": "latest",
     "watchify": "latest",
-    "vinyl-source-stream": "latest"
+    "vinyl-source-stream": "latest",
+    "browser-sync": "latest"
   }
 }

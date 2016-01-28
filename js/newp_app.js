@@ -15,7 +15,7 @@ var Loc = function(data){
   this.loadInfo = function(){
     var self = this;
     $.getJSON(forecastEndpoint.replace('{spot}', this.spotID), function(data){
-      self.forecast = data[0];
+      self.forecast = data;
       console.log(self.forecast);
     }).error(
       function(){
@@ -37,7 +37,7 @@ function initMap() {
     // Make markers for each data item
     data.forEach(function(locationItem){
       var marker = new google.maps.Marker({
-        position: {lat: locationItem.location, lng: locationItem.location[1]},
+        position: {lat: locationItem.location[0], lng: locationItem.location[1]},
         map: map,
         title: locationItem.locName
       });
