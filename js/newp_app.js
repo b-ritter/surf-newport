@@ -1,7 +1,9 @@
 
 var map,
     currentItem = null,
-    locationList = ko.observableArray([]);
+    locationList = ko.observableArray([]),
+    forecastEndpoint = 'http://magicseaweed.com/api/884371cf4fc4156f6e7320b603e18a66'+
+        '/forecast/?spot_id={spot}&units=us&fields=swell.components.*,wind.*,timestamp';
 
 // The template for a location item
 var Loc = function(data){
@@ -10,6 +12,17 @@ var Loc = function(data){
   this.markerInfo = ko.observable(data.markerInfo);
   this.spotID = data.spotID || null;
   this.forecast = '';
+  this.loadInfo = function(){
+    var self = this;
+    $.getJSON(forecastEndpoint.replace('{spot}', this.spotID), function(data){
+      self.forecast = data[0];
+      console.log(self.forecast);
+    }).error(
+      function(){
+        console.log('Error loading forecast');
+      }
+    );
+  };
 };
 
 // Define the callback function
@@ -24,7 +37,7 @@ function initMap() {
     // Make markers for each data item
     data.forEach(function(locationItem){
       var marker = new google.maps.Marker({
-        position: {lat: locationItem.location[0], lng: locationItem.location[1]},
+        position: {lat: locationItem.location, lng: locationItem.location[1]},
         map: map,
         title: locationItem.locName
       });
@@ -66,30 +79,14 @@ function initMap() {
           currentItem.markerInfo().close();
         }
         this.markerInfo().open(map, this.marker());
+        this.loadInfo();
         currentItem = this;
-        // console.log(currentItem);
       };
     };
     ko.applyBindings(new ListViewModel(), document.getElementById('search'));
 
-  }).done(
-    function(){
-      var forecastEndpoint = 'http://magicseaweed.com/api/884371cf4fc4156f6e7320b603e18a66'+
-          '/forecast/?spot_id={spot}&units=us&fields=swell.components.*,wind.*,timestamp',
-          // Only iterate through surf spots
-          surfSpots = _.filter(locationList(),function(loc){ if(loc.spotID){ return loc; }});
-        surfSpots.forEach(function(spot){
-          // console.log(spot);
-          $.getJSON(forecastEndpoint.replace('{spot}', spot.spotID), function(){
-            console.log('foo');
-          }).error(
-            function(){
-              console.log('Error loading forecast');
-            }
-          );
-      });
-    }
-  ).error(
+  })
+  .error(
     function() {
       console.log('Locations not found');
     }
