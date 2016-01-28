@@ -61,7 +61,12 @@ function initMap() {
           var itemChars = item.locName().toLowerCase();
           var searchTermChars = self.searchTerm().toLowerCase();
           if(itemChars.indexOf(searchTermChars) !== -1){
+            if(!item.marker().getVisible()){
+              item.marker().setVisible(true);
+            }
             return item;
+          } else {
+            item.marker().setVisible(false);
           }
         });
         if(tempList.length === 0){
