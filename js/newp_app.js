@@ -1,9 +1,8 @@
 
 var map,
     currentItem = null,
-    locationList = ko.observableArray([]),
-    forecastEndpoint = 'http://magicseaweed.com/api/884371cf4fc4156f6e7320b603e18a66'+
-        '/forecast/?spot_id={spot}&units=us&fields=swell.components.*,wind.*,timestamp';
+    locationList = ko.observableArray([]);
+
 
 // The template for a location item
 var Loc = function(data){
@@ -15,14 +14,21 @@ var Loc = function(data){
   this.loadInfo = function(){
     var self = this;
     if(self.forecast === null){
-      $.getJSON(forecastEndpoint.replace('{spot}', this.spotID), function(data){
-        self.forecast = data;
-        console.log(self.forecast);
-      }).error(
-        function(){
-          console.log('Error loading forecast');
+
+      $.ajax({
+        url: 'php/msw.php',
+        type: 'post',
+        data: { 'action': 'getForecast', 'spot': this.spotID },
+        success: function(data, status) {
+          if(data){
+            console.log(data);
+          }
+        },
+        error: function(xhr, desc, err) {
+          console.log(xhr);
+          console.log("Details: " + desc + "\nError:" + err);
         }
-      );
+      });
     }
   };
 };
