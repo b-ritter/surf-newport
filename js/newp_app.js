@@ -1,7 +1,8 @@
 
 var map,
     currentItem = null,
-    locationList = ko.observableArray([]);
+    locationList = ko.observableArray([]),
+    markerAnimationCycleLength = 2100;
 
 
 // The template for a location item
@@ -21,7 +22,7 @@ var Loc = function(data){
         data: { 'action': 'getForecast', 'spot': this.spotID },
         success: function(data, status) {
           if(data){
-            console.log(data);
+            this.forecast = data;
           }
         },
         error: function(xhr, desc, err) {
@@ -43,6 +44,7 @@ function initMap() {
 
   $.getJSON('data/locations.json', function(data){
     // Make markers for each data item
+    // TODO: make markers observable
     data.forEach(function(locationItem){
       var marker = new google.maps.Marker({
         position: {lat: locationItem.location[0], lng: locationItem.location[1]},
@@ -55,11 +57,16 @@ function initMap() {
       );
       marker.addListener('click', toggleBounce);
       function toggleBounce() {
-        if (marker.getAnimation() !== null) {
-          marker.setAnimation(null);
-        } else {
+        // marker will return a falsy value if not animating
+        markerInfo.open(map, marker);
+        if(currentItem !== null){
+          currentItem.markerInfo().close();
+        }
+        if(!marker.getAnimation()){
           marker.setAnimation(google.maps.Animation.BOUNCE);
-          setTimeout(marker.setAnimation(null), 2000);
+          setTimeout(function(){
+            marker.setAnimation(null);
+          }, markerAnimationCycleLength);
         }
       }
       locationItem.marker = marker;
@@ -111,7 +118,10 @@ function initMap() {
         }
         this.markerInfo().open(map, this.marker());
         this.marker().setAnimation(google.maps.Animation.BOUNCE);
-        setTimeout(this.marker().setAnimation(null), 2000);
+        var self = this;
+        setTimeout(function(){
+          self.marker().setAnimation(null);
+        }, markerAnimationCycleLength);
         this.loadInfo();
         currentItem = this;
       };
