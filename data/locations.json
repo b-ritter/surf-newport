@@ -2,65 +2,41 @@
   {
     "locName": "Newport Jetties",
     "spotID": "665",
-    "location": [ 33.613733, -117.934251 ],
-    "type": "surf"
+    "location": [ 33.613733, -117.934251 ]
   },
   {
     "locName": "Blackies",
     "spotID": "2575",
-    "location": [ 33.609367, -117.930719 ],
-    "type": "surf"
+    "location": [ 33.609367, -117.930719 ]
   },
   {
     "locName": "River Jetties",
     "spotID": "2599",
-    "location": [ 33.628515, -117.957601 ],
-    "type": "surf"
+    "location": [ 33.628515, -117.957601 ]
   },
   {
     "locName": "The Wedge",
     "spotID": "287",
-    "location": [ 33.593311, -117.881968 ],
-    "type": "surf"
+    "location": [ 33.593311, -117.881968 ]
   },
   {
-    "locName": "Surfside Sports",
-    "location": [ 33.6326231, -117.9163963 ],
-    "type": "retail"
+    "locName": "Huntington Pier",
+    "spotID": "286",
+    "location": [ 33.655574, -118.003023 ]
   },
   {
-    "locName": "Froghouse",
-    "location": [ 33.623251, -117.945774 ],
-    "type": "retail"
+    "locName": "Goldenwest",
+    "spotID": "4039",
+    "location": [ 33.667683, -118.018097 ]
   },
   {
-    "locName": "The Attic",
-    "location": [ 33.662309, -117.896880 ],
-    "type": "retail"
+    "locName": "Bolsa Chica",
+    "spotID": "3797",
+    "location": [ 33.700753, -118.053186 ]
   },
   {
-    "locName": "Volcom Skate Park",
-    "location": [ 33.6698231, -117.8953528 ],
-    "type": "skate"
-  },
-  {
-    "locName": "Banzai Bowls",
-    "location": [ 33.6285718, -117.9101281 ],
-    "type": "food"
-  },
-  {
-    "locName": "Alta",
-    "location": [ 33.6152563, -117.9286631 ],
-    "type": "food"
-  },
-  {
-    "locName": "Sidecar",
-    "location": [ 33.6325961, -117.9170776 ],
-    "type": "food"
-  },
-  {
-    "locName": "Bear Flag Fish Company",
-    "location": [ 33.6185614, -117.9291261 ],
-    "type": "food"
+    "locName": "Seal Beach Pier",
+    "spotID": "285",
+    "location": [ 33.700753, -118.053186 ]
   }
 ]
