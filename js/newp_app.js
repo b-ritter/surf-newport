@@ -68,7 +68,7 @@ var map,
     _,
     setTimeout,
     mapCenter = { lat: 33.623201, lng: -117.9312093},
-    currentLoc = ko.observable(null),
+    currentLoc = null,
     currentItem = null,
     locationList = ko.observableArray([]),
     markerAnimationCycleLength = 2100;
@@ -96,7 +96,13 @@ var httpMethod = 'GET',
 
     parameters.oauth_signature = signature;
 
+/* TODO: Create custom map binding to capture clicks
+ko.bindingHandlers.gMap = {
+  update: function(element, valueAccessor, allBindings, viewModel, bindingContext){
 
+  }
+};
+*/
 
 // Class definition for a surf location item
 // Hits the magicseaweed api from php
@@ -104,6 +110,7 @@ var Loc = function(data){
   this.locName = ko.observable(data.locName);
   this.marker = ko.observable(data.marker);
   this.markerInfo = ko.observable(data.markerInfo);
+  this.map = ko.observable(data.map);
   this.spotID = data.spotID || null;
   this.forecast = null;
   this.loadInfo = function(){
@@ -127,7 +134,21 @@ var Loc = function(data){
     }
   };
 };
-
+Loc.prototype.openInfoWindow = function(){
+  if(currentLoc !== null){
+    currentLoc.markerInfo().close();
+    currentLoc.marker().setAnimation(null);
+  }
+  var self = this;
+  this.markerInfo().open(this.map(), this.marker());
+  if(!this.marker().getAnimation()){
+    this.marker().setAnimation(google.maps.Animation.BOUNCE);
+    setTimeout(function(){
+      self.marker().setAnimation(null);
+    }, markerAnimationCycleLength);
+  }
+  currentLoc = this;
+};
 // Define the callback function
 function initMap() {
   // First, we need to make the map object
@@ -164,6 +185,7 @@ function initMap() {
             locationList.push(new Loc({
               marker: marker,
               markerInfo: markerInfo,
+              map: map,
               locName: business.name
             }));
           });
@@ -188,16 +210,12 @@ function initMap() {
     var markerInfo = new google.maps.InfoWindow(
       {content: "<h2>"+locationItem.locName+"</h2>" }
     );
-
+    /*
     marker.addListener('click', bounce);
 
     function bounce() {
       // marker will return a falsy value if not animating
-      console.log(this.marker());
       markerInfo.open(map, marker);
-      if(currentItem !== null){
-        currentItem.markerInfo().close();
-      }
       if(!marker.getAnimation()){
         marker.setAnimation(google.maps.Animation.BOUNCE);
         setTimeout(function(){
@@ -205,8 +223,10 @@ function initMap() {
         }, markerAnimationCycleLength);
       }
     }
+    */
     locationItem.marker = marker;
     locationItem.markerInfo = markerInfo;
+    locationItem.map = map;
     locationList.push(new Loc(locationItem));
   });
 
@@ -248,6 +268,8 @@ function initMap() {
       }
     });
     this.showLocation = function(){
+      this.openInfoWindow();
+      /*
       if(currentItem !== null){
         currentItem.marker().setAnimation(null);
         currentItem.markerInfo().close();
@@ -260,6 +282,7 @@ function initMap() {
       }, markerAnimationCycleLength);
       this.loadInfo();
       currentItem = this;
+      */
     };
   };
   ko.applyBindings(new ListViewModel(), document.getElementById('search'));
