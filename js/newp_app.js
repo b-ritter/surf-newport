@@ -1,6 +1,9 @@
 // Hardcode the location data for the surf spots since
 // these don't really change much over time. The spot
 // id is required for the magicseaweed api.
+
+
+
 var locationData = [
   {
     "locName": "Newport Jetties",
@@ -53,9 +56,19 @@ var locationData = [
   */
 ];
 
+
 // Google map and surf location stuff
 var map,
+    ko,
+    $,
+    google,
+    oauthSignature,
+    console,
+    document,
+    _,
+    setTimeout,
     mapCenter = { lat: 33.623201, lng: -117.9312093},
+    currentLoc = ko.observable(null),
     currentItem = null,
     locationList = ko.observableArray([]),
     markerAnimationCycleLength = 2100;
@@ -64,8 +77,9 @@ var map,
 var httpMethod = 'GET',
     yelpUrl = 'https://api.yelp.com/v2/search?',
     parameters = {
-        location: 'Newport Beach',
-        cll: mapCenter.lat + ", " + mapCenter.lng,
+        bounds: '33.587063, -117.968421|33.671254, -117.867103',
+        term: 'coffee, breakfast burritos, tacos, burgers',
+        sort: '2',
         oauth_consumer_key : 'cxq1v3t-v5ZBP7fgQUCEkg',
         oauth_token : '_LqamVQhZLhs7LMDw62CeVXQPDfDVi_r',
         oauth_nonce : Math.floor(Math.random() * 1e12).toString(),
@@ -107,18 +121,17 @@ var Loc = function(data){
         error: function(xhr, desc, err) {
           console.log(xhr);
           console.log("Details: " + desc + "\nError:" + err);
+          // TODO: Give something back to Knockout
         }
       });
     }
   };
 };
 
-
-
 // Define the callback function
 function initMap() {
-
-
+  // First, we need to make the map object
+  // Markers need to reference this object
   map = new google.maps.Map(document.getElementById('map'), {
     center: {lat: mapCenter.lat, lng: mapCenter.lng },
     zoomControl: true,
@@ -127,8 +140,7 @@ function initMap() {
 
   // Add Yelp stuff once the map is loaded
   google.maps.event.addListenerOnce(map, 'idle', function(){
-      // do something only the first time the map is loaded
-      console.log('map loaded');
+      // When the map is loaded, add the other locations
       $.ajax({
         url: yelpUrl,
         jsonpCallback: 'cb',
@@ -156,7 +168,12 @@ function initMap() {
             }));
           });
         }
-      });
+      }).
+      fail(
+        function(){
+          // TODO: Give something back to Knockout
+        }
+      );
   });
 
   // Make markers for each data item
@@ -176,6 +193,7 @@ function initMap() {
 
     function bounce() {
       // marker will return a falsy value if not animating
+      console.log(this.marker());
       markerInfo.open(map, marker);
       if(currentItem !== null){
         currentItem.markerInfo().close();
