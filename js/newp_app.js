@@ -53,13 +53,39 @@ var locationData = [
   */
 ];
 
+// Google map and surf location stuff
 var map,
+    mapCenter = { lat: 33.623201, lng: -117.9312093},
     currentItem = null,
     locationList = ko.observableArray([]),
     markerAnimationCycleLength = 2100;
 
+// Yelp stuff
+var httpMethod = 'GET',
+    yelpUrl = 'https://api.yelp.com/v2/search?',
+    parameters = {
+        location: 'Newport Beach',
+        cll: mapCenter.lat + ", " + mapCenter.lng,
+        oauth_consumer_key : 'cxq1v3t-v5ZBP7fgQUCEkg',
+        oauth_token : '_LqamVQhZLhs7LMDw62CeVXQPDfDVi_r',
+        oauth_nonce : Math.floor(Math.random() * 1e12).toString(),
+        oauth_timestamp : Math.floor(Date.now() / 1000),
+        oauth_signature_method : 'HMAC-SHA1',
+        callback: 'cb',
+        limit: 20
+    },
+    consumerSecret = 'BAK4r2WoFYdc2nSoGrjD14pc7Bo',
+    tokenSecret = 'qb99XpkZ-lV26f7eNQ1nVofsGN8',
+    // generates a RFC 3986 encoded, BASE64 encoded HMAC-SHA1 hash
+    signature = oauthSignature.generate(httpMethod, yelpUrl, parameters, consumerSecret, tokenSecret,
+       { encodeSignature: false});
+
+    parameters.oauth_signature = signature;
+
+
 
 // Class definition for a surf location item
+// Hits the magicseaweed api from php
 var Loc = function(data){
   this.locName = ko.observable(data.locName);
   this.marker = ko.observable(data.marker);
@@ -87,12 +113,50 @@ var Loc = function(data){
   };
 };
 
+
+
 // Define the callback function
 function initMap() {
+
+
   map = new google.maps.Map(document.getElementById('map'), {
-    center: {lat: 33.623201, lng: -117.9312093},
+    center: {lat: mapCenter.lat, lng: mapCenter.lng },
     zoomControl: true,
     zoom: 13
+  });
+
+  // Add Yelp stuff once the map is loaded
+  google.maps.event.addListenerOnce(map, 'idle', function(){
+      // do something only the first time the map is loaded
+      console.log('map loaded');
+      $.ajax({
+        url: yelpUrl,
+        jsonpCallback: 'cb',
+        dataType: 'jsonp',
+        data: parameters,
+        cache: true,
+
+        success: function(data){
+          console.log(data);
+          data.businesses.forEach(function(business){
+            var marker = new google.maps.Marker({
+              position: {
+                lat: business.location.coordinate.latitude,
+                lng: business.location.coordinate.longitude},
+              map: map,
+              title: business.name
+            });
+            var markerInfo = new google.maps.InfoWindow(
+              {content: "<h2>"+business.name+"</h2>" }
+            );
+            locationList.push(new Loc({
+              marker: marker,
+              markerInfo: markerInfo,
+              locName: business.name
+            }));
+          });
+        }
+      });
   });
 
   // Make markers for each data item
