@@ -61,11 +61,15 @@
         </div>
         <div id="map">
         </div>
-        <!-- Try if data-bind here -->
+
         <div data-bind="with: currentItemDisplay, css: { infoOpen : currentItemDisplay() !== null }" id="info" >
           <li data-bind="text: locName"></li>
+          <!-- if data bind to check to see if this is a surf or business loc --> 
           <li data-bind="text: businessInfo().phone"></li>
         </div>
+
+
+
       </div>
     </div>
 
