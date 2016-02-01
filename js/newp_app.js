@@ -68,11 +68,15 @@ var map,
     _,
     setTimeout,
     mapCenter = { lat: 33.623201, lng: -117.9312093},
-    currentLoc = null,
     currentItem = null,
     locationList = ko.observableArray([]),
     markerAnimationCycleLength = 2100;
 
+var currentItemDisplay = ko.observable(currentItem);
+
+function setCurrent() {
+  currentItemDisplay(currentItem);
+}
 // Yelp stuff
 var httpMethod = 'GET',
     yelpUrl = 'https://api.yelp.com/v2/search?',
@@ -107,15 +111,20 @@ ko.bindingHandlers.gMap = {
 // Class definition for a surf location item
 // Hits the magicseaweed api from php
 var Loc = function(data){
+  var self = this;
   this.locName = ko.observable(data.locName);
   this.marker = ko.observable(data.marker);
   this.markerInfo = ko.observable(data.markerInfo);
   this.map = ko.observable(data.map);
   this.spotID = data.spotID || null;
   this.forecast = null;
+  this.marker().addListener('click',function(){
+    self.openInfoWindow();
+  });
   this.loadInfo = function(){
     var self = this;
     if(self.forecast === null){
+      // Get the magic seaweed info on the selected spot
       $.ajax({
         url: 'php/msw.php',
         type: 'post',
@@ -135,9 +144,9 @@ var Loc = function(data){
   };
 };
 Loc.prototype.openInfoWindow = function(){
-  if(currentLoc !== null){
-    currentLoc.markerInfo().close();
-    currentLoc.marker().setAnimation(null);
+  if(currentItem !== null){
+    currentItem.markerInfo().close();
+    currentItem.marker().setAnimation(null);
   }
   var self = this;
   this.markerInfo().open(this.map(), this.marker());
@@ -147,7 +156,8 @@ Loc.prototype.openInfoWindow = function(){
       self.marker().setAnimation(null);
     }, markerAnimationCycleLength);
   }
-  currentLoc = this;
+  currentItem = this;
+  setCurrent();
 };
 // Define the callback function
 function initMap() {
@@ -210,20 +220,6 @@ function initMap() {
     var markerInfo = new google.maps.InfoWindow(
       {content: "<h2>"+locationItem.locName+"</h2>" }
     );
-    /*
-    marker.addListener('click', bounce);
-
-    function bounce() {
-      // marker will return a falsy value if not animating
-      markerInfo.open(map, marker);
-      if(!marker.getAnimation()){
-        marker.setAnimation(google.maps.Animation.BOUNCE);
-        setTimeout(function(){
-          marker.setAnimation(null);
-        }, markerAnimationCycleLength);
-      }
-    }
-    */
     locationItem.marker = marker;
     locationItem.markerInfo = markerInfo;
     locationItem.map = map;
@@ -261,7 +257,7 @@ function initMap() {
       } else if (tempList.length === 1){
         // If there is only one match, set it as the current item
         currentItem = tempList[0];
-        currentItem.markerInfo().open(map, currentItem.marker());
+        currentItem.openInfoWindow();
         return currentItem;
       }else {
         return tempList;
@@ -269,23 +265,11 @@ function initMap() {
     });
     this.showLocation = function(){
       this.openInfoWindow();
-      /*
-      if(currentItem !== null){
-        currentItem.marker().setAnimation(null);
-        currentItem.markerInfo().close();
-      }
-      this.markerInfo().open(map, this.marker());
-      this.marker().setAnimation(google.maps.Animation.BOUNCE);
-      var self = this;
-      setTimeout(function(){
-        self.marker().setAnimation(null);
-      }, markerAnimationCycleLength);
-      this.loadInfo();
-      currentItem = this;
-      */
+      setDumdum();
     };
   };
-  ko.applyBindings(new ListViewModel(), document.getElementById('search'));
+
+  ko.applyBindings(new ListViewModel(), document.getElementById('NewportMesaApp'));
 }
 
 

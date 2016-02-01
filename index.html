@@ -6,36 +6,63 @@
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <title>Newport Beach / Costa Mesa</title>
     <style>
+    /* TODO: Add styles for mobile */
+      ul {
+        padding: 0;
+      }
       html, body {
         margin: 0;
         width: 100%;
         height: 100%;
-        color: #932b2b;
+        color: #000;
+      }
+      #NewportMesaApp{
+        width: 100vw;
+        height: 100vh;
+      }
+      #NewportMesaDisplayPanel{
+        display: flex;
+        height: 95vh;
       }
       #map {
-        width: 100%;
-        height: 100%;
+        width: 80%;
       }
-      #search {
-        position: absolute;
+      #info {
+        width: 0%;
+      }
+      #list {
+        width: 20%;
+      }
+      #NewportMesaSearchPanel {
+        /*position: absolute;
         background-color: white;
-        z-index: 1;
-        width: 25vw;
-        height: 75vh;
+        z-index: 1;*/
+        width: 100%;
+        height: 5vh;
       }
+
       li {
         list-style-type: none;
       }
     </style>
   </head>
   <body>
-    <div id="search">
-      <input data-bind="textInput: searchTerm" type="text" name="mapFilter" placeholder="Search">
-      <ul data-bind="foreach: locations" id="location-list">
-        <li data-bind="text: $data.locName, click: $parent.showLocation"></li>
-      </ul>
-    </div>
-    <div id="map">
+    <div id="NewportMesaApp">
+      <div id="NewportMesaSearchPanel">
+        <input data-bind="textInput: searchTerm" type="text" name="mapFilter" placeholder="Search">
+      </div>
+      <div id="NewportMesaDisplayPanel">
+        <div id="list">
+          <ul data-bind="foreach: locations" id="location-list">
+            <li data-bind="text: $data.locName, click: $parent.showLocation"></li>
+          </ul>
+        </div>
+        <div id="map">
+        </div>
+        <div data-bind="with: currentItemDisplay" id="info">
+          <li data-bind="text: locName"></li>
+        </div>
+      </div>
     </div>
 
     <script src="js/libs/jquery.min.js"></script>
@@ -46,5 +73,12 @@
     <script async defer
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtqzH53xQyC04PbQFV4brTqidjBzhr_dI&callback=initMap">
     </script>
+    <script>
+    //   setTimeout(function(){
+    //     var e = document.getElementById("info");
+    //     console.log(e);
+    //     e.style.width = '20%';
+    //   },3000);
+    // </script>
   </body>
 </html>
