@@ -28,21 +28,23 @@
         width: 80%;
       }
       #info {
-        width: 0%;
+        /*width: 0%;*/
+      }
+      .infoOpen {
+        width: 20%;
       }
       #list {
         width: 20%;
       }
       #NewportMesaSearchPanel {
-        /*position: absolute;
-        background-color: white;
-        z-index: 1;*/
         width: 100%;
         height: 5vh;
       }
-
       li {
         list-style-type: none;
+      }
+      .currentItem {
+        font-weight: bold;
       }
     </style>
   </head>
@@ -54,13 +56,15 @@
       <div id="NewportMesaDisplayPanel">
         <div id="list">
           <ul data-bind="foreach: locations" id="location-list">
-            <li data-bind="text: $data.locName, click: $parent.showLocation"></li>
+            <li data-bind="text: $data.locName, click: $parent.showLocation, css: { currentItem : $data.isActive() > 0 }"></li>
           </ul>
         </div>
         <div id="map">
         </div>
-        <div data-bind="with: currentItemDisplay" id="info">
+        <!-- Try if data-bind here -->
+        <div data-bind="with: currentItemDisplay, css: { infoOpen : currentItemDisplay() !== null }" id="info" >
           <li data-bind="text: locName"></li>
+          <li data-bind="text: businessInfo().phone"></li>
         </div>
       </div>
     </div>
@@ -73,12 +77,5 @@
     <script async defer
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtqzH53xQyC04PbQFV4brTqidjBzhr_dI&callback=initMap">
     </script>
-    <script>
-    //   setTimeout(function(){
-    //     var e = document.getElementById("info");
-    //     console.log(e);
-    //     e.style.width = '20%';
-    //   },3000);
-    // </script>
   </body>
 </html>
