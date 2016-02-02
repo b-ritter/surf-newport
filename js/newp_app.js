@@ -145,11 +145,11 @@ SurfLoc.prototype = Object.create(Loc.prototype);
 
 // Specify stuff for business loc
 
-BusLoc = function(data){
+BizLoc = function(data){
   Loc.call(this,data);
 };
 
-BusLoc.prototype = Object.create(Loc.prototype);
+BizLoc.prototype = Object.create(Loc.prototype);
 
 
 // Define the callback function that kicks off the entire map
