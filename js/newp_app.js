@@ -83,9 +83,6 @@ var Loc = function(data){
   this.markerInfo = ko.observable(data.markerInfo);
   this.map = ko.observable(data.map);
   // TODO: move surf-specific items into surf subclass
-  this.spotID = data.spotID || null;
-  this.forecast = null;
-  this.businessInfo = ko.observable(data.businessInfo);
   // this.phone = ko.observable(data.phone);
   this.marker().addListener('click',function(){
     self.openInfoWindow();
@@ -93,27 +90,6 @@ var Loc = function(data){
   this.markerInfo().addListener('closeclick', function(){
     setCurrent(null);
   });
-  this.loadInfo = function(){
-    var self = this;
-    if(self.forecast === null){
-      // Get the magic seaweed info on the selected spot
-      $.ajax({
-        url: 'php/msw.php',
-        type: 'post',
-        data: { 'action': 'getForecast', 'spot': this.spotID },
-        success: function(data, status) {
-          if(data){
-            this.forecast = data;
-          }
-        },
-        error: function(xhr, desc, err) {
-          console.log(xhr);
-          console.log("Details: " + desc + "\nError:" + err);
-          // TODO: Give something back to Knockout
-        }
-      });
-    }
-  };
 };
 
 // Define method on prototype to open info window for a marker
@@ -138,14 +114,48 @@ Loc.prototype.openInfoWindow = function(){
 
 // Specify stuff for surf loc
 SurfLoc = function(data){
-  Loc.call(this,data);
+  var self = this;
+  this.locType = 'surf';
+  Loc.call(this, data);
+  this.forecast = ko.observable(null);
+  this.spotID = data.spotID;
+  this.forecast = null;
+  this.marker().addListener('click',function(){
+    self.loadInfo();
+    setCurrent(self);
+  });
 };
 
 SurfLoc.prototype = Object.create(Loc.prototype);
+SurfLoc.constructor = Loc;
 
+SurfLoc.prototype.loadInfo = function(){
+  var self = this;
+  if(self.forecast === null){
+    // Get the magic seaweed info on the selected spot
+    $.ajax({
+      url: 'php/msw.php',
+      type: 'post',
+      data: { 'action': 'getForecast', 'spot': this.spotID },
+      success: function(data, status) {
+        if(data){
+          console.log(data);
+          this.forecast = data;
+        }
+      },
+      error: function(xhr, desc, err) {
+        console.log(xhr);
+        console.log("Details: " + desc + "\nError:" + err);
+        // TODO: Give something back to Knockout
+      }
+    });
+  }
+};
 // Specify stuff for business loc
 
 BizLoc = function(data){
+  this.locType = 'biz';
+  this.businessInfo = ko.observable(data.businessInfo);
   Loc.call(this,data);
 };
 
@@ -179,7 +189,7 @@ function initMap() {
     locationItem.marker = marker;
     locationItem.markerInfo = markerInfo;
     locationItem.map = map;
-    locationList.push(new Loc(locationItem));
+    locationList.push(new SurfLoc(locationItem));
   });
 
   // Setup the ViewModel for the markers
@@ -253,7 +263,7 @@ function initMap() {
             var markerInfo = new google.maps.InfoWindow(
               {content: "<h2>"+business.name+"</h2>" }
             );
-            locationList.push(new Loc({
+            locationList.push(new BizLoc({
               marker: marker,
               markerInfo: markerInfo,
               map: map,
