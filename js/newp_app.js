@@ -82,6 +82,7 @@ var Loc = function(data){
   this.marker = ko.observable(data.marker);
   this.markerInfo = ko.observable(data.markerInfo);
   this.map = ko.observable(data.map);
+  // TODO: move surf-specific items into surf subclass
   this.spotID = data.spotID || null;
   this.forecast = null;
   this.businessInfo = ko.observable(data.businessInfo);
@@ -131,10 +132,25 @@ Loc.prototype.openInfoWindow = function(){
   }
   // making currentItem itself an observable prevents the info window
   // from opening
-// currentItem = this;
   // setCurrent() sets an observable equal to the current item
   setCurrent(this);
 };
+
+// Specify stuff for surf loc
+SurfLoc = function(data){
+  Loc.call(this,data);
+};
+
+SurfLoc.prototype = Object.create(Loc.prototype);
+
+// Specify stuff for business loc
+
+BusLoc = function(data){
+  Loc.call(this,data);
+};
+
+BusLoc.prototype = Object.create(Loc.prototype);
+
 
 // Define the callback function that kicks off the entire map
 function initMap() {
