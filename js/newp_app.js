@@ -63,10 +63,17 @@ var map,
 
 // Utility function to set the state of the app
 function setCurrent(item) {
+  if(item !== null && item.locType === 'surf'){
+    item.loadInfo();
+  }
   if(currentItem !== null && item !== null){
+    // Handles the case where there is a current item already
+    // and the user selects another item to display
     currentItem.isActive(false);
     item.isActive(true);
   }else if(currentItem !== null && item === null){
+    // Handles the case where there is a current item already
+    // but the user is deselecting all items
     currentItem.isActive(false);
   }
   currentItem = item;
