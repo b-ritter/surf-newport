@@ -80,14 +80,13 @@
         infoOpen : currentItemDisplay() !== null,
         infoClosed :  currentItemDisplay() === null
       }" id="info">
-        <li data-bind="text: locName"></li>
+        <h1 data-bind="text: locName"></h1>
         <!-- if data bind to check to see if this is a surf or business loc -->
         <!-- ko if: locType === 'surf' -->
-          <h1>Surf!</h1>
           <div data-bind="text: forecast"></div>
         <!-- /ko -->
         <!-- ko if: locType === 'biz' -->
-          <h1>Eat!</h1>
+          <div data-bind="text: snippet_text"></div>
         <!-- /ko -->
       </div>
     </div>

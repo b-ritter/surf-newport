@@ -165,7 +165,8 @@ SurfLoc.prototype.loadInfo = function(){
 
 BizLoc = function(data){
   this.locType = 'biz';
-  this.businessInfo = ko.observable(data.businessInfo);
+  // this.businessInfo = ko.observable(data.businessInfo);
+  this.snippet_text = ko.observable(data.businessInfo.snippet_text);
   Loc.call(this,data);
 };
 
@@ -291,7 +292,7 @@ function initMap() {
               businessInfo: {
                 phone: business.phone,
                 url: business.url,
-                snippet: business.snippet,
+                snippet_text: business.snippet_text,
                 rating: business.rating,
                 review_count: business.review_count
               }
