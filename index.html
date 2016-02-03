@@ -27,16 +27,25 @@
       #map {
         width: 80%;
       }
-      .infoClosed {
+      .infoWindow {
+        /*width: 15vw;
+        height: 10vw;*/
+        display: flex;
+      }
+      #info {
         width: 25vw;
         height: 100vh;
         position: absolute;
         z-index: 2;
+        background-color: rgba(255,255,255,.8);
+      }
+      .infoClosed {
         transform: translate(100vw, -100vh);
+        transition: transform 0.3s ease;
       }
       .infoOpen {
         transform: translate(75vw, -100vh);
-        background-color: rgba(255,255,255,.8);
+        transition: transform 0.3s ease;
       }
       #list {
         width: 20%;
@@ -67,12 +76,15 @@
         <div id="map">
         </div>
       </div>
-      <div data-bind="with: currentItemDisplay, css: { infoOpen : currentItemDisplay() !== null }" class="infoClosed" >
+      <div data-bind="with: currentItemDisplay, css: {
+        infoOpen : currentItemDisplay() !== null,
+        infoClosed :  currentItemDisplay() === null
+      }" id="info">
         <li data-bind="text: locName"></li>
         <!-- if data bind to check to see if this is a surf or business loc -->
-        <!-- <li data-bind="text: businessInfo().phone"></li> -->
         <!-- ko if: locType === 'surf' -->
           <h1>Surf!</h1>
+          <div data-bind="text: forecast"></div>
         <!-- /ko -->
         <!-- ko if: locType === 'biz' -->
           <h1>Eat!</h1>
