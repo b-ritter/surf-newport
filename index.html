@@ -83,10 +83,10 @@
         <h1 data-bind="text: locName"></h1>
         <!-- if data bind to check to see if this is a surf or business loc -->
         <!-- ko if: locType === 'surf' -->
-          <div data-bind="foreach: forecast().slice(0,8)">
+          <div data-bind="foreach: forecast().slice(0,9)">
             <div data-bind="with: $data">
-              <p data-bind="text: timestamp"></p>
-              <p data-bind="text: swell.components.primary.height"></p>
+              <p data-bind="text: moment(timestamp * 1000).format('ddd, hA')"></p>
+              <p>Primary Swell Height: <span data-bind="text: swell.components.primary.height"></span></p>
             </div>
           </div>
         <!-- /ko -->
@@ -100,6 +100,7 @@
     <script src="js/libs/knockout-3.2.0.js"></script>
     <script src="js/libs/underscore.js"></script>
     <script src="js/libs/oauth-signature.min.js"></script>
+    <script src="js/libs/moment.min.js"></script>
     <script src= "js/newp_app.js"></script>
     <script async defer
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtqzH53xQyC04PbQFV4brTqidjBzhr_dI&callback=initMap">
