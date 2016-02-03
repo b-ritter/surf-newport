@@ -280,7 +280,8 @@ function initMap() {
                    }
                    return previousValue + currentValue[0] + separator;
                  }, "")+
-                "</p></div></div>" }
+                "</p></div></div><img src='" + business.rating_img_url + "'/>"
+               }
             );
             locationList.push(new BizLoc({
               marker: marker,
