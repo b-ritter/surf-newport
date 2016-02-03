@@ -129,7 +129,7 @@ SurfLoc = function(data){
   var self = this;
   this.locType = 'surf';
   Loc.call(this, data);
-  this.forecast = ko.observable(null);
+  this.forecast = ko.observableArray([null]);
   this.spotID = data.spotID;
   this.marker().addListener('click',function(){
     self.loadInfo();
@@ -142,7 +142,7 @@ SurfLoc.constructor = Loc;
 
 SurfLoc.prototype.loadInfo = function(){
   var self = this;
-  if(self.forecast() === null){
+  if(self.forecast()[0] === null){
     // Get the magic seaweed info on the selected spot
     $.ajax({
       url: 'php/msw.php',
@@ -150,13 +150,15 @@ SurfLoc.prototype.loadInfo = function(){
       data: { 'action': 'getForecast', 'spot': this.spotID },
       success: function(data, status) {
         if(data){
-          self.forecast(data);
+          var d = JSON.parse(data);
+          self.forecast(d);
         }
       },
       error: function(xhr, desc, err) {
         console.log(xhr);
         console.log("Details: " + desc + "\nError:" + err);
         // TODO: Give something back to Knockout
+        return "Error loading surf forecast.";
       }
     });
   }
@@ -263,7 +265,7 @@ function initMap() {
         cache: true,
         success: function(data){
           data.businesses.forEach(function(business){
-            console.log(business);
+            // console.log(business);
             var marker = new google.maps.Marker({
               position: {
                 lat: business.location.coordinate.latitude,
