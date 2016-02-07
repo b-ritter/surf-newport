@@ -69,11 +69,13 @@ var map,
 // Utility function to set the state of the app
 function setCurrent(item) {
   if(item !== null && item.locType === 'surf'){
+    setMap(item);
     item.loadInfo();
   }
   if(currentItem !== null && item !== null){
     // Handles the case where there is a current item already
     // and the user selects another item to display
+    setMap(item);
     currentItem.isActive(false);
     item.isActive(true);
   }else if(currentItem !== null && item === null){
@@ -85,6 +87,10 @@ function setCurrent(item) {
   currentItemDisplay(item);
 }
 
+function setMap(item) {
+  item.marker().getMap().panTo(item.marker().getPosition());
+  console.log(item.marker().getPosition().lat());
+}
 // Class definition for a surf location item
 // Hits the magicseaweed api from php
 var Loc = function(data){
@@ -130,6 +136,10 @@ SurfLoc = function(data){
   this.locType = 'surf';
   Loc.call(this, data);
   this.forecast = ko.observableArray([null]);
+  this.forecastData = [];
+  // There are 8 intervals of forecast data per day
+  this.offset = 8;
+  this.currentDayIndex = 0;
   this.spotID = data.spotID;
   this.marker().addListener('click',function(){
     self.loadInfo();
@@ -150,8 +160,10 @@ SurfLoc.prototype.loadInfo = function(){
       data: { 'action': 'getForecast', 'spot': this.spotID },
       success: function(data, status) {
         if(data){
-          var d = JSON.parse(data);
-          self.forecast(d);
+          var parsedData = JSON.parse(data);
+          self.forecastData = parsedData;
+          self.forecast(parsedData.slice(0,self.offset));
+          self.currentDayIndex = self.offset;
         }
       },
       error: function(xhr, desc, err) {
@@ -163,6 +175,16 @@ SurfLoc.prototype.loadInfo = function(){
     });
   }
 };
+
+SurfLoc.prototype.loadNextForecast = function(){
+  // There are 8 forecast intervals in one day
+  if( this.forecastData.length < this.currentDayIndex + this.offset){
+    this.currentDayIndex = 0;
+  }
+  this.forecast(this.forecastData.slice(this.currentDayIndex, this.currentDayIndex + this.offset));
+  this.currentDayIndex += this.offset;
+};
+
 // Specify stuff for business loc
 
 BizLoc = function(data){
@@ -183,6 +205,13 @@ function initMap() {
     center: {lat: mapCenter.lat, lng: mapCenter.lng },
     zoomControl: true,
     zoom: 13
+  });
+  
+  // Resize map when the viewport is resized
+  google.maps.event.addDomListener(window, 'resize', function() {
+   var center = map.getCenter();
+   google.maps.event.trigger(map, 'resize');
+   map.setCenter(center);
   });
 
   // Make markers for each data item
@@ -249,6 +278,10 @@ function initMap() {
     this.showLocation = function(){
       this.openInfoWindow();
       setCurrent(this);
+    };
+
+    this.loadNextForecast = function(){
+      currentItem.loadNextForecast();
     };
   };
 

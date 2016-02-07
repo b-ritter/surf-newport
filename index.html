@@ -83,9 +83,13 @@
         <h1 data-bind="text: locName"></h1>
         <!-- if data bind to check to see if this is a surf or business loc -->
         <!-- ko if: locType === 'surf' -->
-          <div data-bind="foreach: forecast().slice(0,9)">
+          <div data-bind="with: forecast()[0]">
+            <p data-bind="text: moment(timestamp*1000)"></p>
+          </div>
+          <button data-bind="click: $parent.loadNextForecast" name="next">Next day</button>
+          <div data-bind="foreach: forecast()">
             <div data-bind="with: $data">
-              <p data-bind="text: moment(timestamp * 1000).format('ddd, hA')"></p>
+              <p data-bind="text: moment(timestamp*1000).format('ha')"></p>
               <p>Primary Swell Height: <span data-bind="text: swell.components.primary.height"></span></p>
             </div>
           </div>

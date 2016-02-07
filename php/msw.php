@@ -6,7 +6,7 @@ if($_POST['action'] == "getForecast") {
    * but with no database, we can simply assume the follow action has been completed and return 'ok'
   **/
 
-  $forecastEndpoint = 'http://magicseaweed.com/api/884371cf4fc4156f6e7320b603e18a66/forecast/?spot_id={spot}&units=us&fields=swell.components.*,wind.*,timestamp';
+  $forecastEndpoint = 'http://magicseaweed.com/api/884371cf4fc4156f6e7320b603e18a66/forecast/?spot_id={spot}&units=us&fields=swell.*,wind.*,timestamp';
   $url = str_replace('{spot}', $_POST['spot'], $forecastEndpoint);
   $forecast = file_get_contents($url);
 
