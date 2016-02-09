@@ -70,13 +70,18 @@ var map,
 // Utility function to set the state of the app
 function setCurrent(item) {
   if (item.locType === 'surf'){
-    item.isActive(true);
-    item.loadInfo();
     if(currentItem.locType !== 'default'){
       currentItem.isActive(false);
     }
-  } else if (item.locType === 'biz') {
     item.isActive(true);
+    item.loadInfo();
+
+  } else if (item.locType === 'biz') {
+    if(currentItem.locType !== 'default'){
+      currentItem.isActive(false);
+    }
+    item.isActive(true);
+  } else if (item.locType === 'default' && currentItem.locType !== 'default'){
     currentItem.isActive(false);
   }
   currentItem = item;
@@ -101,7 +106,7 @@ var Loc = function(data){
     self.openInfoWindow();
   });
   this.markerInfo().addListener('closeclick', function(){
-    setCurrent(null);
+    setCurrent(defaultLoc);
   });
 };
 
