@@ -283,7 +283,7 @@ function initMap() {
       } else if (tempList.length === 1){
         // If there is only one match, set it as the current item
         setCurrent(tempList[0]);
-        // currentItem.openInfoWindow();
+        currentItem.openInfoWindow();
         return currentItem;
       } else {
         setCurrent(defaultLoc);
@@ -294,7 +294,6 @@ function initMap() {
     this.showLocation = function(){
       this.openInfoWindow();
       setCurrent(this);
-      // console.log(currentItem.locName());
     };
 
   };
