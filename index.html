@@ -6,6 +6,7 @@
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <title>Newport Beach / Costa Mesa</title>
     <style>
+
         html, body {
           margin: 0;
           padding: 0;
@@ -14,9 +15,11 @@
           font-family: Helvetica, Arial, sans-serif;
           font-size: 2.2vh;
         }
-        ul, li, h1, p {
-          margin: 0; padding: 0;
+
+        ul, li, h1, p, a {
+          margin: 0; padding: 0; text-decoration: none;
         }
+
         #NewportMesaSearchPanel {
           width: 100%;
           height: 5vh;
@@ -50,6 +53,18 @@
 
         .currentItem {
           font-weight: bold;
+        }
+
+        .snippet::before {
+          content: '"';
+        }
+
+        .snippet::after {
+          content: '"';
+        }
+
+        .snippet {
+          font-style: italic;
         }
 
         @media (orientation: landscape) {
@@ -100,11 +115,6 @@
         </div>
         <div id="map">
         </div>
-
-        <!-- TODO: Redo app so that a default binding is applied to a new type
-        that loads some data from flickr -->
-
-
         <div data-bind="with: currentItemDisplay" id="info">
           <div id="info-data">
             <!-- ko if: locType === 'default' -->
@@ -127,8 +137,11 @@
               </div>
             <!-- /ko -->
             <!-- ko if: locType === 'biz' -->
-              <h1 data-bind="text: locName"></h1>
-              <div data-bind="text: snippet_text"></div>
+              <a data-bind="attr: { href: url }"><h1 data-bind="text: locName"></h1></a>
+              <h4 data-bind="text: display_phone"></h4>
+              <p data-bind="text: categories"></p>
+              <p data-bind="text: snippet_text" class="snippet"></p>
+
             <!-- /ko -->
           </div>
         </div>

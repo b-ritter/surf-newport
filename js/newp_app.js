@@ -196,7 +196,6 @@ SurfLoc.prototype.setNextForecast = function(direction){
       return val + self.offset * direction;
     });
   }
-  console.log(this.currentRange);
   this.forecast(this.forecastData.slice(this.currentRange[0], this.currentRange[1]));
 };
 
@@ -205,7 +204,10 @@ SurfLoc.prototype.setNextForecast = function(direction){
 BizLoc = function(data){
   this.locType = 'biz';
   // this.businessInfo = ko.observable(data.businessInfo);
-  this.snippet_text = ko.observable(data.businessInfo.snippet_text);
+  this.snippet_text = data.businessInfo.snippet_text;
+  this.display_phone = data.businessInfo.display_phone;
+  this.url = data.businessInfo.url;
+  this.categories = data.categories;
   Loc.call(this,data);
 };
 
@@ -311,7 +313,14 @@ function initMap() {
         cache: true,
         success: function(data){
           data.businesses.forEach(function(business){
-            // console.log(business);
+            var categories = business.categories.reduce(function(previousValue, currentValue, currentIndex, array){
+              var separator = "";
+              if(currentIndex < array.length-1){
+               separator = ", ";
+              }
+              return previousValue + currentValue[0] + separator;
+            }, "");
+
             var marker = new google.maps.Marker({
               position: {
                 lat: business.location.coordinate.latitude,
@@ -319,16 +328,11 @@ function initMap() {
               map: map,
               title: business.name
             });
+
             var markerInfo = new google.maps.InfoWindow(
               {content: "<div class='infoWindow'><img src='" + business.image_url + "'/>" +
               "<div><h2>" + business.name + "</h2><p>" +
-                 business.categories.reduce(function(previousValue, currentValue, currentIndex, array){
-                   var separator = "";
-                   if(currentIndex < array.length-1){
-                    separator = ", ";
-                   }
-                   return previousValue + currentValue[0] + separator;
-                 }, "")+
+                categories +
                 "</p></div></div><img src='" + business.rating_img_url + "'/>"
                }
             );
@@ -337,12 +341,11 @@ function initMap() {
               markerInfo: markerInfo,
               map: map,
               locName: business.name,
+              categories: categories,
               businessInfo: {
-                phone: business.phone,
+                display_phone: business.display_phone,
                 url: business.url,
-                snippet_text: business.snippet_text,
-                rating: business.rating,
-                review_count: business.review_count
+                snippet_text: business.snippet_text
               }
             }));
           });
