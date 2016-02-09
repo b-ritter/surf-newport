@@ -87,7 +87,8 @@
           <div data-bind="with: forecast()[0]">
             <p data-bind="text: moment(timestamp*1000)"></p>
           </div>
-          <button data-bind="click: $parent.loadNextForecast" name="next">Next day</button>
+          <button data-bind="click: $data.loadNextForecast" name="next">Next day</button>
+          <button data-bind="click: $data.loadPrevForecast" name="prev">Previous day</button>
           <div data-bind="foreach: forecast()">
             <div data-bind="with: $data">
               <p data-bind="text: moment(timestamp*1000).format('ha')"></p>

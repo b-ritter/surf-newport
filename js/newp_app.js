@@ -139,7 +139,8 @@ SurfLoc = function(data){
   this.forecastData = [];
   // There are 8 intervals of forecast data per day
   this.offset = 8;
-  this.currentDayIndex = 0;
+  // Show the first day of 8 intervals
+  this.currentRange = [0, 8];
   this.spotID = data.spotID;
   this.marker().addListener('click',function(){
     self.loadInfo();
@@ -173,11 +174,30 @@ SurfLoc.prototype.loadInfo = function(){
 
 SurfLoc.prototype.loadNextForecast = function(){
   // There are 8 forecast intervals in one day
-  if( this.forecastData.length < this.currentDayIndex + this.offset){
-    this.currentDayIndex = 0;
+  // Load the next 8 on click
+  this.setNextForecast(1);
+};
+
+SurfLoc.prototype.loadPrevForecast = function(){
+  // There are 8 forecast intervals in one day
+  this.setNextForecast(-1);
+};
+
+SurfLoc.prototype.setNextForecast = function(direction){
+  // Direction is 1 or -1
+  // Moves the range of forecast data to show up or down
+  var self = this;
+  if( this.currentRange[0] + this.offset * direction < 0 ){
+    this.currentRange = [this.forecastData.length - this.offset, this.forecastData.length];
+  } else if (this.currentRange[1] + this.offset * direction > this.forecastData.length){
+    this.currentRange = [0, this.offset];
+  } else {
+     this.currentRange = this.currentRange.map( function(val) {
+      return val + self.offset * direction;
+    });
   }
-  this.forecast(this.forecastData.slice(this.currentDayIndex, this.currentDayIndex + this.offset));
-  this.currentDayIndex += this.offset;
+  console.log(this.currentRange);
+  this.forecast(this.forecastData.slice(this.currentRange[0], this.currentRange[1]));
 };
 
 // Specify stuff for business loc
@@ -275,9 +295,6 @@ function initMap() {
       setCurrent(this);
     };
 
-    this.loadNextForecast = function(){
-      currentItem.loadNextForecast();
-    };
   };
 
   ko.applyBindings(new ListViewModel(), document.getElementById('NewportMesaApp'));
