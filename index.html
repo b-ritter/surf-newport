@@ -11,6 +11,8 @@
           padding: 0;
           width: 100%;
           height: 100%;
+          font-family: Helvetica, Arial, sans-serif;
+          font-size: 2.2vh;
         }
         ul, li, h1, p {
           margin: 0; padding: 0;
@@ -45,27 +47,41 @@
         ul, li {
           list-style-type: none;
         }
+
         .currentItem {
           font-weight: bold;
         }
+
         @media (orientation: landscape) {
+
           #info {
             width: 30vw;
           }
+
+          .infoWindow {
+            width: 25vh;
+          }
+
         }
 
         @media (orientation: portrait){
+
           #NewportMesaDisplayPanel {
             flex-wrap: wrap;
           }
+
           #list, #map {
             height: calc(75vh * .95);
           }
+
           #info {
             width: 100vw;
             height: calc(25vh * .95);
           }
+
         }
+        /* TODO: Adjust the height of the info panel
+        and the list view for really small screens */
 
     </style>
   </head>
@@ -84,11 +100,20 @@
         </div>
         <div id="map">
         </div>
+
+        <!-- TODO: Redo app so that a default binding is applied to a new type
+        that loads some data from flickr -->
+
+
         <div data-bind="with: currentItemDisplay" id="info">
           <div id="info-data">
-            <h1 data-bind="text: locName"></h1>
+            <!-- ko if: locType === 'default' -->
+            <h1>Newport Beach, CA</h1>
+            <p>Some text about newport</p>
+            <!-- /ko -->
             <!-- if data bind to check to see if this is a surf or business loc -->
             <!-- ko if: locType === 'surf' -->
+            <h1 data-bind="text: locName"></h1>
               <div data-bind="with: forecast()[0]">
                 <p data-bind="text: moment(timestamp*1000).format('dddd, MMMM Do YYYY')"></p>
               </div>
@@ -102,6 +127,7 @@
               </div>
             <!-- /ko -->
             <!-- ko if: locType === 'biz' -->
+              <h1 data-bind="text: locName"></h1>
               <div data-bind="text: snippet_text"></div>
             <!-- /ko -->
           </div>

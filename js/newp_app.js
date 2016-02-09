@@ -38,7 +38,8 @@ var locationData = [
 // Google map and surf location stuff
 var map,
     mapCenter = { lat: 33.623201, lng: -117.9312093},
-    currentItem = null,
+    defaultLoc = { locType: 'default'},
+    currentItem = defaultLoc,
     locationList = ko.observableArray([]),
     currentItemDisplay = ko.observable(currentItem),
     categoryList = ko.observableArray([]),
@@ -68,19 +69,14 @@ var map,
 
 // Utility function to set the state of the app
 function setCurrent(item) {
-  if(item !== null && item.locType === 'surf'){
-    setMap(item);
-    item.loadInfo();
-  }
-  if(currentItem !== null && item !== null){
-    // Handles the case where there is a current item already
-    // and the user selects another item to display
-    setMap(item);
-    currentItem.isActive(false);
+  if (item.locType === 'surf'){
     item.isActive(true);
-  }else if(currentItem !== null && item === null){
-    // Handles the case where there is a current item already
-    // but the user is deselecting all items
+    item.loadInfo();
+    if(currentItem.locType !== 'default'){
+      currentItem.isActive(false);
+    }
+  } else if (item.locType === 'biz') {
+    item.isActive(true);
     currentItem.isActive(false);
   }
   currentItem = item;
@@ -88,10 +84,10 @@ function setCurrent(item) {
 }
 
 function setMap(item) {
+  // This is too aggressive
   // item.marker().getMap().panTo(item.marker().getPosition());
 }
-// Class definition for a surf location item
-// Hits the magicseaweed api from php
+
 var Loc = function(data){
   var self = this;
   this.locName = ko.observable(data.locName);
@@ -111,7 +107,7 @@ var Loc = function(data){
 
 // Define method on prototype to open info window for a marker
 Loc.prototype.openInfoWindow = function(){
-  if(currentItem !== null){
+  if(currentItem.locType !== 'default'){
     currentItem.markerInfo().close();
     currentItem.marker().setAnimation(null);
   }
@@ -210,7 +206,6 @@ BizLoc = function(data){
 
 BizLoc.prototype = Object.create(Loc.prototype);
 
-
 // Define the callback function that kicks off the entire map
 function initMap() {
   // First, we need to make the map object
@@ -254,9 +249,10 @@ function initMap() {
     this.searchTerm = ko.observable('');
     this.locations = ko.computed(function(){
       // Live filtering of locations
-      if(currentItem !== null){
+      if(currentItem.locType !== 'default'){
         currentItem.markerInfo().close();
       }
+
       var tempList = _.filter(locationList(), function(item){
         var itemChars = item.locName().toLowerCase();
         var searchTermChars = self.searchTerm().toLowerCase();
@@ -273,18 +269,19 @@ function initMap() {
           item.marker().setVisible(false);
         }
       });
+
       if(tempList.length === 0){
         // If there are no results that pass the filter,
         // show them all
-        setCurrent(null);
+        setCurrent(defaultLoc);
         return locationList();
       } else if (tempList.length === 1){
         // If there is only one match, set it as the current item
         setCurrent(tempList[0]);
         // currentItem.openInfoWindow();
         return currentItem;
-      }else {
-        setCurrent(null);
+      } else {
+        setCurrent(defaultLoc);
         return tempList;
       }
     });
@@ -292,6 +289,7 @@ function initMap() {
     this.showLocation = function(){
       this.openInfoWindow();
       setCurrent(this);
+      // console.log(currentItem.locName());
     };
 
   };
