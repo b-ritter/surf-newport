@@ -6,39 +6,107 @@
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <title>Newport Beach / Costa Mesa</title>
     <style>
+    /* TODO: Add styles for mobile */
+      ul {
+        padding: 0;
+      }
       html, body {
         margin: 0;
         width: 100%;
         height: 100%;
+        color: #000;
+      }
+      #NewportMesaApp{
+        width: 100vw;
+        height: 100vh;
+      }
+      #NewportMesaDisplayPanel{
+        display: flex;
+        height: 95vh;
       }
       #map {
-        width: 100%;
-        height: 100%;
+        width: 80%;
       }
-      #search {
-        position: absolute;
-        background-color: white;
-        z-index: 1;
+      .infoWindow {
+        /*width: 15vw;
+        height: 10vw;*/
+        display: flex;
+      }
+      #info {
         width: 25vw;
-        height: 75vh;
+        height: 100vh;
+        position: absolute;
+        /*z-index: 4;*/
+        background-color: rgba(255,255,255,.8);
+        /*background-color: white;*/
+      }
+      .infoClosed {
+        transform: translate(100vw, -100vh);
+        transition: transform 0.3s ease;
+      }
+      .infoOpen {
+        transform: translate(75vw, -100vh);
+        transition: transform 0.3s ease;
+      }
+      #list {
+        width: 20%;
+      }
+      #NewportMesaSearchPanel {
+        width: 100%;
+        height: 5vh;
       }
       li {
         list-style-type: none;
       }
+      .currentItem {
+        font-weight: bold;
+      }
     </style>
   </head>
   <body>
-    <div id="search">
-      <input type="text" name="mapFilter" value="Search">
-      <ul data-bind="foreach: locations" id="location-list">
-        <li data-bind="text: $data.locName, click: $parent.showLocation"></li>
-      </ul>
+    <div id="NewportMesaApp">
+      <div id="NewportMesaSearchPanel">
+        <input data-bind="textInput: searchTerm" type="text" name="mapFilter" placeholder="Search">
+      </div>
+      <div id="NewportMesaDisplayPanel">
+        <div id="list">
+          <ul data-bind="foreach: locations" id="location-list">
+            <li data-bind="text: $data.locName, click: $parent.showLocation, css: { currentItem : $data.isActive() > 0 }"></li>
+          </ul>
+        </div>
+        <div id="map">
+        </div>
+      </div>
+      <div data-bind="with: currentItemDisplay, css: {
+        infoOpen : currentItemDisplay() !== null,
+        infoClosed :  currentItemDisplay() === null
+      }" id="info">
+        <h1 data-bind="text: locName"></h1>
+        <!-- if data bind to check to see if this is a surf or business loc -->
+        <!-- ko if: locType === 'surf' -->
+          <div data-bind="with: forecast()[0]">
+            <p data-bind="text: moment(timestamp*1000).format('dddd, MMMM Do YYYY')"></p>
+          </div>
+          <button data-bind="click: $data.loadNextForecast" name="next">Next day</button>
+          <button data-bind="click: $data.loadPrevForecast" name="prev">Previous day</button>
+          <div data-bind="foreach: forecast()">
+            <div data-bind="with: $data">
+              <p data-bind="text: moment(timestamp*1000).format('ha')"></p>
+              <p>Primary Swell Height: <span data-bind="text: swell.components.primary.height"></span></p>
+            </div>
+          </div>
+        <!-- /ko -->
+        <!-- ko if: locType === 'biz' -->
+          <div data-bind="text: snippet_text"></div>
+        <!-- /ko -->
+      </div>
     </div>
-    <div id="map">
-    </div>
+
     <script src="js/libs/jquery.min.js"></script>
     <script src="js/libs/knockout-3.2.0.js"></script>
     <script src="js/libs/underscore.js"></script>
+    <script src="js/libs/oauth-signature.min.js"></script>
+    <script src="js/libs/moment.min.js"></script>
     <script src= "js/newp_app.js"></script>
     <script async defer
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtqzH53xQyC04PbQFV4brTqidjBzhr_dI&callback=initMap">
