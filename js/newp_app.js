@@ -88,8 +88,7 @@ function setCurrent(item) {
 }
 
 function setMap(item) {
-  item.marker().getMap().panTo(item.marker().getPosition());
-  console.log(item.marker().getPosition().lat());
+  // item.marker().getMap().panTo(item.marker().getPosition());
 }
 // Class definition for a surf location item
 // Hits the magicseaweed api from php
