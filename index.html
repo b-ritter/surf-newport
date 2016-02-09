@@ -85,7 +85,7 @@
         <!-- if data bind to check to see if this is a surf or business loc -->
         <!-- ko if: locType === 'surf' -->
           <div data-bind="with: forecast()[0]">
-            <p data-bind="text: moment(timestamp*1000)"></p>
+            <p data-bind="text: moment(timestamp*1000).format('dddd, MMMM Do YYYY')"></p>
           </div>
           <button data-bind="click: $data.loadNextForecast" name="next">Next day</button>
           <button data-bind="click: $data.loadPrevForecast" name="prev">Previous day</button>
