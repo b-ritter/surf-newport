@@ -154,20 +154,18 @@ SurfLoc.prototype.loadInfo = function(){
   var self = this;
   if(self.forecast()[0] === null){
     // Get the magic seaweed info on the selected spot
-    // http://magicseaweed.com/api/884371cf4fc4156f6e7320b603e18a66/forecast/?spot_id={spot}&units=us&fields=swell.*,wind.*,timestamp
-
     $.ajax({
       url: 'http://magicseaweed.com/api/884371cf4fc4156f6e7320b603e18a66/forecast/?spot_id=' +
       self.spotID +
       '&units=us&fields=swell.*,wind.*,timestamp',
       dataType: 'jsonp',
       success: function(data){
-        // console.log(data);
+        self.forecastData = data;
         self.forecast(data.slice(0, self.offset));
         self.currentDayIndex = self.offset;
       },
       error: function(e){
-        console.log('error');
+        self.forecast("Couldn't load forecast");
       }
     });
   }
