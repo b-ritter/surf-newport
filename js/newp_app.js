@@ -41,6 +41,7 @@ var map,
     defaultLoc = { locType: 'default'},
     currentItem = defaultLoc,
     locationList = ko.observableArray([]),
+    searchTerm = ko.observable(''),
     currentItemDisplay = ko.observable(currentItem),
     categoryList = ko.observableArray([]),
     markerAnimationCycleLength = 2100,
@@ -49,15 +50,14 @@ var map,
     yelpUrl = 'https://api.yelp.com/v2/search?',
     parameters = {
         bounds: '33.587063, -117.968421|33.671254, -117.867103',
-        term: 'coffee, breakfast burritos, tacos, burgers',
+        // term: 'coffee, breakfast burritos, tacos, burgers',
         sort: '2',
         oauth_consumer_key : 'cxq1v3t-v5ZBP7fgQUCEkg',
         oauth_token : '_LqamVQhZLhs7LMDw62CeVXQPDfDVi_r',
         oauth_nonce : Math.floor(Math.random() * 1e12).toString(),
         oauth_timestamp : Math.floor(Date.now() / 1000),
         oauth_signature_method : 'HMAC-SHA1',
-        callback: 'cb',
-        limit: 20
+        callback: 'cb'
     },
     consumerSecret = 'BAK4r2WoFYdc2nSoGrjD14pc7Bo',
     tokenSecret = 'qb99XpkZ-lV26f7eNQ1nVofsGN8',
@@ -107,6 +107,7 @@ var Loc = function(data){
   });
   this.markerInfo().addListener('closeclick', function(){
     setCurrent(defaultLoc);
+    searchTerm('');
   });
 };
 
@@ -207,6 +208,7 @@ BizLoc = function(data){
   this.snippet_text = data.businessInfo.snippet_text;
   this.display_phone = data.businessInfo.display_phone;
   this.url = data.businessInfo.url;
+  this.rating_img_url_large = data.businessInfo.rating_img_url_large;
   this.categories = data.categories;
   Loc.call(this,data);
 };
@@ -253,7 +255,7 @@ function initMap() {
   // Setup the ViewModel for the markers
   var ListViewModel = function(){
     var self = this;
-    this.searchTerm = ko.observable('');
+
     this.locations = ko.computed(function(){
       // Live filtering of locations
       if(currentItem.locType !== 'default'){
@@ -262,7 +264,7 @@ function initMap() {
 
       var tempList = _.filter(locationList(), function(item){
         var itemChars = item.locName().toLowerCase();
-        var searchTermChars = self.searchTerm().toLowerCase();
+        var searchTermChars = searchTerm().toLowerCase();
         if(itemChars.indexOf(searchTermChars) !== -1){
           // Check if the marker is NOT visible
           if(!item.marker().getVisible()){
@@ -313,6 +315,7 @@ function initMap() {
         cache: true,
         success: function(data){
           data.businesses.forEach(function(business){
+            console.log(business);
             var categories = business.categories.reduce(function(previousValue, currentValue, currentIndex, array){
               var separator = "";
               if(currentIndex < array.length-1){
@@ -330,11 +333,7 @@ function initMap() {
             });
 
             var markerInfo = new google.maps.InfoWindow(
-              {content: "<div class='infoWindow'><img src='" + business.image_url + "'/>" +
-              "<div><h2>" + business.name + "</h2><p>" +
-                categories +
-                "</p></div></div><img src='" + business.rating_img_url + "'/>"
-               }
+              { content: "<div class='infoWindow'><h2>" + business.name + "</h2></div>" }
             );
             locationList.push(new BizLoc({
               marker: marker,
@@ -345,6 +344,7 @@ function initMap() {
               businessInfo: {
                 display_phone: business.display_phone,
                 url: business.url,
+                rating_img_url_large: business.rating_img_url_large,
                 snippet_text: business.snippet_text
               }
             }));

@@ -19,7 +19,9 @@
         ul, li, h1, p, a {
           margin: 0; padding: 0; text-decoration: none;
         }
-
+        header {
+          font-family: "industry-inc-stencil";
+        }
         #NewportMesaSearchPanel {
           width: 100%;
           height: 5vh;
@@ -102,11 +104,12 @@
   </head>
   <body>
     <div id="NewportMesaApp">
-      <div id="NewportMesaSearchPanel">
-        <input data-bind="textInput: searchTerm" type="text" name="mapFilter" placeholder="Search">
-      </div>
+      <header>Newport/Mesa Surf</header>
       <div id="NewportMesaDisplayPanel">
         <div id="list">
+          <div id="NewportMesaSearchPanel">
+            <input data-bind="textInput: searchTerm" type="text" name="mapFilter" placeholder="Search">
+          </div>
           <div id="list-items">
             <ul data-bind="foreach: locations" id="location-list">
               <li data-bind="text: $data.locName, click: $parent.showLocation, css: { currentItem : $data.isActive() > 0 }"></li>
@@ -139,6 +142,7 @@
             <!-- ko if: locType === 'biz' -->
               <a data-bind="attr: { href: url }"><h1 data-bind="text: locName"></h1></a>
               <h4 data-bind="text: display_phone"></h4>
+              <img data-bind="attr: { src: rating_img_url_large }"/>
               <p data-bind="text: categories"></p>
               <p data-bind="text: snippet_text" class="snippet"></p>
 
@@ -154,6 +158,14 @@
     <script src="js/libs/underscore.js"></script>
     <script src="js/libs/oauth-signature.min.js"></script>
     <script src="js/libs/moment.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.5.18/webfont.js"></script>
+    <script>
+      WebFont.load({
+        typekit: {
+          id: 'cgy0ivd'
+        }
+      });
+    </script>
     <script src= "js/newp_app.js"></script>
     <script async defer
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtqzH53xQyC04PbQFV4brTqidjBzhr_dI&callback=initMap">
