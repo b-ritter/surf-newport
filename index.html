@@ -200,8 +200,10 @@
       <header>
         <h1>Newport/Mesa Surf</h1>
         <div id="buttonFilters">
+          <!-- TODO: Remove or keep filtering
           <button data-bind="click: showSurfSpots">Surf Spots</button>
           <button data-bind="click: showRestaurants">Restaurants</button>
+          -->
         </div>
       </header>
       <div id="NewportMesaDisplayPanel">
@@ -246,6 +248,7 @@
                 <div data-bind="with: $data">
                   <p data-bind="text: moment(timestamp*1000).format('ha')"></p>
                   <p>Primary Swell Height: <span data-bind="text: swell.components.primary.height"></span></p>
+                  <!-- <div data-bind="swellChart: swell.components.primary.height"></div> -->
                 </div>
               </div>
             </div>
@@ -292,6 +295,7 @@
     <script src="js/libs/underscore.js"></script>
     <script src="js/libs/oauth-signature.min.js"></script>
     <script src="js/libs/moment.min.js"></script>
+    <script src="js/libs/d3.min.js"></script>
     <script src= "js/newp_app.js"></script>
     <script async defer
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtqzH53xQyC04PbQFV4brTqidjBzhr_dI&callback=initMap">

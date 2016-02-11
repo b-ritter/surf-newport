@@ -93,6 +93,26 @@ function setMap(item) {
   // item.marker().getMap().panTo(item.marker().getPosition());
 }
 
+ko.bindingHandlers.swellChart = {
+  init: function(element){
+    var width = parseInt(d3.select(element).style("width"), 10),
+            height = parseInt(d3.select(element).style("height"), 10),
+
+        // creating the svg canvas
+        svg = d3.select(element)
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        // adding the republican rectangle to the canvas
+        svg.append("rect");
+
+  },
+  update: function(){
+
+  }
+};
+
 var Loc = function(data){
   var self = this;
   this.locName = ko.observable(data.locName);
@@ -243,7 +263,7 @@ function initMap() {
     });
     // Create a marker info window
     var markerInfo = new google.maps.InfoWindow(
-      {content: "<div class='infoWindow'><h2>"+locationItem.locName+"</h2><p>"+locationItem.locDescription+"</p></div>" }
+      {content: "<div class='infoWindow'><h2>"+locationItem.locName+"</h2></div>" }
     );
     // Assign the map marker and info window to the locationItem,
     // which is passed to Loc() to make an object with observable properties
@@ -301,12 +321,13 @@ function initMap() {
       setCurrent(this);
     };
 
+    /* TODO: Remove or keep filtering */
     this.showSurfSpots = function(){
       locationList(self.filterByType('surf'));
     };
 
     this.showRestaurants = function(){
-      // locationList(self.filterByType('biz'));
+      locationList(self.filterByType('biz'));
     };
 
     this.filterByType = function(type){
