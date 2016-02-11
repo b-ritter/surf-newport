@@ -12,16 +12,51 @@
           padding: 0;
           width: 100%;
           height: 100%;
-          font-family: Helvetica, Arial, sans-serif;
+          font-family: "Oswald", Helvetica, Arial, sans-serif;
+          color: white;
+          background-color: #2c3d67;
+          font-weight: 300;
           font-size: 2.2vh;
         }
 
         ul, li, h1, p, a {
-          margin: 0; padding: 0; text-decoration: none;
+          margin: 0; padding: 0;
         }
+
+        a {
+          color: white;
+          text-decoration: none;
+        }
+
+        h1 {
+          font-size: 3vh;
+        }
+
+        a h1 {
+          display: inline;
+          border-bottom: .125em solid white;
+        }
+
+        h4 + p {
+          padding-bottom: 1em;
+        }
+
         header {
-          font-family: "industry-inc-stencil";
+          display: flex;
+          justify-content: space-between;
+          margin: 2vh 0 0 2vh;
         }
+
+        header h1 {
+          font-size: 4vh;
+          font-family: "industry-inc-stencil";
+          width: 50%;
+        }
+
+        header #buttonFilters {
+          width: 15%;
+        }
+
         #NewportMesaSearchPanel {
           width: 100%;
           height: 5vh;
@@ -38,23 +73,42 @@
           overflow: hidden;
         }
 
-        #list-items, #info-data {
+        .list-items {
           height: 100%;
           width: 100%;
           overflow: auto;
-          padding-right: 1em;
+          padding-left: 3vh;
+        }
+
+        #mapContainer {
+          width: 75vw;
         }
 
         #map {
-          width: 75vw;
+          margin: 0 0 2vh 2vh;
+          height: 90vh;
         }
 
         ul, li {
           list-style-type: none;
         }
 
+        .infoWrapper {
+          margin: 0 2vh;
+        }
+
+        .infoQuote {
+          background-color: white;
+          color: #32325d;
+          padding: .5em;
+          border-top-left-radius: 1em;
+          border-top-right-radius: 1em;
+          border-bottom-right-radius: 1em;
+          border-bottom-left-radius: 1em;
+        }
+
         .currentItem {
-          font-weight: bold;
+          font-weight: 400;
         }
 
         .snippet::before {
@@ -69,16 +123,21 @@
           font-style: italic;
         }
 
+        .infoWindow {
+          font-family: "Oswald";
+          color: #32325d;
+          font-weight: 300;
+        }
+
+        #info {
+          overflow-y: auto;
+        }
+
         @media (orientation: landscape) {
 
           #info {
             width: 30vw;
           }
-
-          .infoWindow {
-            width: 25vh;
-          }
-
         }
 
         @media (orientation: portrait){
@@ -91,42 +150,91 @@
             height: calc(75vh * .95);
           }
 
+          #map {
+            height: 50vh;
+          }
+
+          #mapContainer {
+            width: 52vw;
+            margin-right: 2vh;
+          }
+
+          #list {
+            width: 40vw;
+          }
+
           #info {
             width: 100vw;
             height: calc(25vh * .95);
           }
 
+          .infoWrapper {
+            display: flex;
+            padding: 1em;
+            margin-top: 2vh;
+            border-top: solid white .25em;
+          }
+
+          .intro {
+            flex-wrap: wrap;
+            padding-right: 3vh;
+          }
+
+          .intro p {
+            width: 100%;
+
+          }
+
+          .infoContact, .infoQuote{
+            width: 50%;
+          }
+
         }
-        /* TODO: Adjust the height of the info panel
-        and the list view for really small screens */
 
     </style>
   </head>
   <body>
     <div id="NewportMesaApp">
-      <header>Newport/Mesa Surf</header>
+      <header>
+        <h1>Newport/Mesa Surf</h1>
+        <div id="buttonFilters">
+          <button data-bind="click: showSurfSpots">Surf Spots</button>
+          <button data-bind="click: showRestaurants">Restaurants</button>
+        </div>
+      </header>
       <div id="NewportMesaDisplayPanel">
         <div id="list">
-          <div id="NewportMesaSearchPanel">
-            <input data-bind="textInput: searchTerm" type="text" name="mapFilter" placeholder="Search">
-          </div>
-          <div id="list-items">
+          <div class="list-items">
+            <div id="NewportMesaSearchPanel">
+              <input data-bind="textInput: searchTerm" type="text" name="mapFilter" placeholder="Filter Results">
+            </div>
             <ul data-bind="foreach: locations" id="location-list">
               <li data-bind="text: $data.locName, click: $parent.showLocation, css: { currentItem : $data.isActive() > 0 }"></li>
             </ul>
           </div>
         </div>
-        <div id="map">
+        <div id="mapContainer">
+          <div id="map">
+          </div>
         </div>
         <div data-bind="with: currentItemDisplay" id="info">
           <div id="info-data">
             <!-- ko if: locType === 'default' -->
-            <h1>Newport Beach, CA</h1>
-            <p>Some text about newport</p>
+            <div class="infoWrapper intro">
+              <h1>About Newport/Mesa</h1>
+              <p>Newport Beach and Costa Mesa are neighboring cities in Orange County, CA. Newport Beach contains
+              several excellent surf breaks. Starting at West Newport, where the Santa Ana river meets the Pacific Ocean,
+              there is a break referred to as "River Jetties." Farther South-East are the Newport Jetties, a series of
+              beach breaks separated by rock jetties. Just North of the Newport Pier is Blackies, a popular break named
+              after a nearby bar. At the end of the Balboa Peninsula is the Wedge, an infamous big-wave spot popular with
+              bodysurfers, bodyboarders and surfers alike. On the other side of the harbor is Corona Del Mar, a scenic
+              beach visited by all ages.</p>
+            </div>
             <!-- /ko -->
             <!-- if data bind to check to see if this is a surf or business loc -->
             <!-- ko if: locType === 'surf' -->
-            <h1 data-bind="text: locName"></h1>
+            <div class="infoWrapper">
+              <h1 data-bind="text: locName"></h1>
               <div data-bind="with: forecast()[0]">
                 <p data-bind="text: moment(timestamp*1000).format('dddd, MMMM Do YYYY')"></p>
               </div>
@@ -138,34 +246,50 @@
                   <p>Primary Swell Height: <span data-bind="text: swell.components.primary.height"></span></p>
                 </div>
               </div>
+            </div>
             <!-- /ko -->
             <!-- ko if: locType === 'biz' -->
-              <a data-bind="attr: { href: url }"><h1 data-bind="text: locName"></h1></a>
-              <h4 data-bind="text: display_phone"></h4>
-              <img data-bind="attr: { src: rating_img_url_large }"/>
-              <p data-bind="text: categories"></p>
-              <p data-bind="text: snippet_text" class="snippet"></p>
-
+            <div class="infoWrapper">
+              <div class="infoContact">
+                <a data-bind="attr: { href: url }">
+                  <h1 data-bind="text: locName"></h1>
+                </a>
+                <h4 data-bind="text: display_phone"></h4>
+                <p data-bind="text: categories"></p>
+              </div>
+              <div class="infoQuote">
+                <p data-bind="text: snippet_text" class="snippet"></p>
+                <img data-bind="attr: { src: rating_img_url }"/>
+              </div>
+            </div>
             <!-- /ko -->
           </div>
         </div>
       </div>
 
     </div>
-
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.5.18/webfont.js"></script> -->
+    <script>
+      WebFontConfig = {
+        google: {
+          families: ['Oswald:300,400']
+        },
+        typekit: {
+          id: 'cgy0ivd'
+        }
+      };
+      (function(d) {
+        console.log('loaded');
+        var wf = d.createElement('script'), s = d.scripts[0];
+        wf.src = 'https://ajax.googleapis.com/ajax/libs/webfont/1.5.18/webfont.js';
+        s.parentNode.insertBefore(wf, s);
+       })(document);
+    </script>
     <script src="js/libs/jquery.min.js"></script>
     <script src="js/libs/knockout-3.2.0.js"></script>
     <script src="js/libs/underscore.js"></script>
     <script src="js/libs/oauth-signature.min.js"></script>
     <script src="js/libs/moment.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.5.18/webfont.js"></script>
-    <script>
-      WebFont.load({
-        typekit: {
-          id: 'cgy0ivd'
-        }
-      });
-    </script>
     <script src= "js/newp_app.js"></script>
     <script async defer
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtqzH53xQyC04PbQFV4brTqidjBzhr_dI&callback=initMap">

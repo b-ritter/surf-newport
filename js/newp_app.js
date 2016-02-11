@@ -208,7 +208,7 @@ BizLoc = function(data){
   this.snippet_text = data.businessInfo.snippet_text;
   this.display_phone = data.businessInfo.display_phone;
   this.url = data.businessInfo.url;
-  this.rating_img_url_large = data.businessInfo.rating_img_url_large;
+  this.rating_img_url = data.businessInfo.rating_img_url;
   this.categories = data.categories;
   Loc.call(this,data);
 };
@@ -238,6 +238,7 @@ function initMap() {
     var marker = new google.maps.Marker({
       position: {lat: locationItem.location[0], lng: locationItem.location[1]},
       map: map,
+      icon: 'img/wave.svg',
       title: locationItem.locName
     });
     // Create a marker info window
@@ -253,7 +254,7 @@ function initMap() {
   });
 
   // Setup the ViewModel for the markers
-  var ListViewModel = function(){
+  var NewportViewModel = function(){
     var self = this;
 
     this.locations = ko.computed(function(){
@@ -300,9 +301,21 @@ function initMap() {
       setCurrent(this);
     };
 
+    this.showSurfSpots = function(){
+      var surfSpots = _.filter(locationList(), function(item){
+        if (item.locType === 'surf'){
+          return item;
+        }
+      });
+      // this.locations(surfSpots);
+    };
+
+    this.showRestaurants = function(){
+
+    };
   };
 
-  ko.applyBindings(new ListViewModel(), document.getElementById('NewportMesaApp'));
+  ko.applyBindings(new NewportViewModel(), document.getElementById('NewportMesaApp'));
 
   // Add Yelp data once the map is loaded
   google.maps.event.addListenerOnce(map, 'idle', function(){
@@ -329,6 +342,7 @@ function initMap() {
                 lat: business.location.coordinate.latitude,
                 lng: business.location.coordinate.longitude},
               map: map,
+              icon: 'img/anchor.svg',
               title: business.name
             });
 
@@ -344,7 +358,7 @@ function initMap() {
               businessInfo: {
                 display_phone: business.display_phone,
                 url: business.url,
-                rating_img_url_large: business.rating_img_url_large,
+                rating_img_url: business.rating_img_url,
                 snippet_text: business.snippet_text
               }
             }));
