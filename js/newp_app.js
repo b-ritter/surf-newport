@@ -94,22 +94,50 @@ function setMap(item) {
 }
 
 ko.bindingHandlers.swellChart = {
-  init: function(element){
-    var width = parseInt(d3.select(element).style("width"), 10),
-            height = parseInt(d3.select(element).style("height"), 10),
-
+  init: function(element, valueAccessor){
+    var elementWidth = parseInt(d3.select(element).style("width"), 10),
+        width = elementWidth,
+        height = elementWidth * 0.5,
+        data = ko.unwrap(valueAccessor()),
+        primarySwellHeight = _.map(data, function(element){
+          if(element){
+            return element.swell.components.primary.height;
+          }
+        }),
+        numItems = primarySwellHeight.length,
+        barWidth = width / numItems,
+        space = 0.1 * barWidth;
+        // console.log(barWidth);
         // creating the svg canvas
         svg = d3.select(element)
             .append("svg")
-            .attr("width", width)
-            .attr("height", height);
+            .attr("viewBox", "0 0 " + width + " " + height)
+            .attr("fill", "white");
 
-        // adding the republican rectangle to the canvas
-        svg.append("rect");
+        var y = d3.scale.linear()
+          .domain([0, d3.max(primarySwellHeight)])
+          .range([0, height]);
 
-  },
-  update: function(){
-
+        svg.selectAll(".bar")
+            .data(primarySwellHeight)
+            .enter().append("rect")
+            .attr("height", function(d){
+              if(d){
+                return y(d);
+              }
+            })
+            .attr("width", barWidth - space)
+            .attr("x", function(d, i){
+              if(d){
+                return barWidth * i ;
+              }
+            })
+            .attr("y", function(d, i){
+              if(d) {
+                return height - y(d);
+              }
+            })
+            .attr("class", "bar");
   }
 };
 
