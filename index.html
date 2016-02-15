@@ -264,7 +264,7 @@
                   <p data-bind="text: moment(timestamp*1000).format('dddd, MMMM Do YYYY')"></p>
                 </div>
                 <div data-bind="with: forecast">
-                  <div data-bind="swellChart: $data"></div>
+                  <div data-bind="MSWswellChart: $data"></div>
                   <!-- <div data-bind="windChart: $data"></div> -->
                 </div>
                 <button data-bind="click: $data.loadPrevForecast" name="prev">Previous day</button>

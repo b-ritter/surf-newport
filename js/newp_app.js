@@ -94,7 +94,7 @@ function setMap(item) {
 }
 
 // Custom binding to handle the drawing of the swell data
-ko.bindingHandlers.swellChart = {
+ko.bindingHandlers.MSWswellChart = {
   init: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext){
 
     var margin = {top: 20, right: 0, bottom: 20, left: 40},
