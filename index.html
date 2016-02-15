@@ -131,8 +131,15 @@
           font-weight: 300;
         }
 
-        #info {
-          overflow-y: auto;
+        .chart {
+          padding-top: 3vh;
+        }
+
+        .axis line, .axis path {
+          fill: none;
+          stroke: #fff;
+          stroke-width: 0;
+          shape-rendering: crispEdges;
         }
 
         @media (orientation: landscape) {
@@ -152,10 +159,10 @@
             height: calc(75vh * .95);
           }
           #list {
-            height: calc(50vh * .95);
+            height: calc(60vh * .95);
           }
           #mapContainer, #map {
-            height: calc(50vh * .95);
+            height: calc(60vh * .95);
           }
 
           #mapContainer {
@@ -194,8 +201,9 @@
             width: 50%;
           }
 
-
-
+          .forecast>div {
+            width: 50%;
+          }
         }
 
     </style>
@@ -242,20 +250,20 @@
             <!-- /ko -->
             <!-- if data bind to check to see if this is a surf or business loc -->
             <!-- ko if: locType === 'surf' -->
-            <div class="infoWrapper">
+            <div class="infoWrapper forecast">
               <div>
                 <h1 data-bind="text: locName"></h1>
+                <p data-bind="text: locDescription"></p>
+              </div>
+              <div class="chart">
                 <div data-bind="with: forecast()[0]">
                   <p data-bind="text: moment(timestamp*1000).format('dddd, MMMM Do YYYY')"></p>
-                  <p data-bind="text: description"></p>
                 </div>
-              </div>
-              <div>
-                <button data-bind="click: $data.loadNextForecast" name="next">Next day</button>
-                <button data-bind="click: $data.loadPrevForecast" name="prev">Previous day</button>
                 <div data-bind="with: forecast">
-                  <div data-bind="swellChart: $data" class="chart"></div>
+                  <div data-bind="swellChart: $data"></div>
                 </div>
+                <button data-bind="click: $data.loadPrevForecast" name="prev">Previous day</button>
+                <button data-bind="click: $data.loadNextForecast" name="next">Next day</button>
               </div>
             </div>
             <!-- /ko -->

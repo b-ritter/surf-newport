@@ -93,37 +93,75 @@ function setMap(item) {
   // item.marker().getMap().panTo(item.marker().getPosition());
 }
 
+// Custom binding to handle the drawing of the waveheight chart
 ko.bindingHandlers.swellChart = {
-  init: function(element, valueAccessor){
-    var elementWidth = parseInt(d3.select(element).style("width"), 10),
-        width = elementWidth,
-        height = elementWidth * 0.5,
+  init: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext){
+
+    var margin = {top: 20, right: 0, bottom: 20, left: 40},
+        // elementWidth = parseInt(d3.select(element).style("width"), 10),
+        width = 400,
+        height = 200,
         data = ko.unwrap(valueAccessor()),
+        // Extract a list of swell heights
         primarySwellHeight = _.map(data, function(element){
           if(element){
             return element.swell.components.primary.height;
           }
         }),
+        timeIntervals = _.map(data, function(element){
+          if(element){
+            return moment(element.timestamp * 1000).format('ha');
+          }
+        }),
         numItems = primarySwellHeight.length,
         barWidth = width / numItems,
-        space = 0.1 * barWidth;
-        // console.log(barWidth);
+        space = 0.1 * barWidth,
+        allWaveHeights = bindingContext.$parent.forecastRange;
         // creating the svg canvas
         svg = d3.select(element)
             .append("svg")
-            .attr("viewBox", "0 0 " + width + " " + height)
-            .attr("fill", "white");
+            .attr("viewBox", "0 0 " + (width + margin.left + margin.right) + " " +
+            (height + margin.top + margin.bottom))
+            .attr("fill", "white")
+          .append("g")
+            .attr("transform", "translate("+ margin.left +"," + margin.top + ")");
 
         var y = d3.scale.linear()
-          .domain([0, d3.max(primarySwellHeight)])
-          .range([0, height]);
+          .domain([0, d3.max(allWaveHeights)])
+          .range([height, 0]);
+
+
+        var x = d3.scale.ordinal()
+          .domain(timeIntervals)
+          .rangeBands([0, width]);
+
+
+        var yAxis = d3.svg.axis()
+          .scale(y)
+          .orient("left");
+
+        var xAxis = d3.svg.axis()
+          .scale(x)
+          // .innerTickSize(0)
+          .orient("bottom");
+
+        svg.insert("g", "svg")
+          .attr("class", "y axis")
+          .attr("transform", "translate(0,0)")
+          .call(yAxis);
+
+        svg.insert("g", "svg")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0,"+ height+ ")")
+          .call(xAxis);
 
         svg.selectAll(".bar")
+            // Could this data be extracted with a function instead?
             .data(primarySwellHeight)
             .enter().append("rect")
             .attr("height", function(d){
               if(d){
-                return y(d);
+                return height - y(d);
               }
             })
             .attr("width", barWidth - space)
@@ -134,10 +172,14 @@ ko.bindingHandlers.swellChart = {
             })
             .attr("y", function(d, i){
               if(d) {
-                return height - y(d);
+                return y(d);
               }
             })
             .attr("class", "bar");
+
+        svg.append("text")
+          .attr("transform", "translate(" + (width - margin.left)/2 + ",0)")
+          .text("Swell Height");
   }
 };
 
@@ -185,6 +227,8 @@ SurfLoc = function(data){
   this.locType = 'surf';
   Loc.call(this, data);
   this.forecast = ko.observableArray([null]);
+  this.forecastRange = [];
+  this.locDescription = data.locDescription;
   this.forecastData = [];
   // There are 8 intervals of forecast data per day
   this.offset = 8;
@@ -211,6 +255,10 @@ SurfLoc.prototype.loadInfo = function(){
       dataType: 'jsonp',
       success: function(data){
         self.forecastData = data;
+        self.forecastRange = _.map(data, function(element){
+            return element.swell.components.primary.height;
+        });
+
         self.forecast(data.slice(0, self.offset));
         self.currentDayIndex = self.offset;
       },
