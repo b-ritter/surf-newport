@@ -67,7 +67,7 @@
         #NewportMesaDisplayPanel {
           display: flex;
           overflow: hidden;
-          height: 95vh;
+          /*height: 95vh;*/
         }
 
         #list {
@@ -142,6 +142,10 @@
           shape-rendering: crispEdges;
         }
 
+        .windChart {
+          display: flex;
+          justify-content: space-between;
+        }
         @media (orientation: landscape) {
 
           #info {
@@ -176,7 +180,7 @@
 
           #info {
             width: 100vw;
-            height: calc(50vh * .95);
+            /*min-height: calc(50vh * .95);*/
           }
 
           .infoWrapper {
@@ -261,6 +265,7 @@
                 </div>
                 <div data-bind="with: forecast">
                   <div data-bind="swellChart: $data"></div>
+                  <!-- <div data-bind="windChart: $data"></div> -->
                 </div>
                 <button data-bind="click: $data.loadPrevForecast" name="prev">Previous day</button>
                 <button data-bind="click: $data.loadNextForecast" name="next">Next day</button>

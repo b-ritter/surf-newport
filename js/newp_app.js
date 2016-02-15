@@ -93,7 +93,7 @@ function setMap(item) {
   // item.marker().getMap().panTo(item.marker().getPosition());
 }
 
-// Custom binding to handle the drawing of the waveheight chart
+// Custom binding to handle the drawing of the swell data
 ko.bindingHandlers.swellChart = {
   init: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext){
 
@@ -103,20 +103,20 @@ ko.bindingHandlers.swellChart = {
         height = 200,
         data = ko.unwrap(valueAccessor()),
         // Extract a list of swell heights
-        primarySwellHeight = _.map(data, function(element){
-          if(element){
-            return element.swell.components.primary.height;
+        primarySwellHeight = _.map(data, function(d){
+          if(d){
+            return d.swell.components.primary.height;
           }
         }),
-        timeIntervals = _.map(data, function(element){
-          if(element){
-            return moment(element.timestamp * 1000).format('ha');
+        timeIntervals = _.map(data, function(d){
+          if(d){
+            return moment(d.timestamp * 1000).format('ha');
           }
         }),
         numItems = primarySwellHeight.length,
         barWidth = width / numItems,
         space = 0.1 * barWidth,
-        allWaveHeights = bindingContext.$parent.forecastRange;
+        allWaveHeights = bindingContext.$parent.forecastRange,
         // creating the svg canvas
         svg = d3.select(element)
             .append("svg")
@@ -129,7 +129,6 @@ ko.bindingHandlers.swellChart = {
         var y = d3.scale.linear()
           .domain([0, d3.max(allWaveHeights)])
           .range([height, 0]);
-
 
         var x = d3.scale.ordinal()
           .domain(timeIntervals)
@@ -180,6 +179,22 @@ ko.bindingHandlers.swellChart = {
         svg.append("text")
           .attr("transform", "translate(" + (width - margin.left)/2 + ",0)")
           .text("Swell Height");
+
+          windSpeeds = _.map(data, function(d){
+            if(d){
+              return d.wind.speed;
+            }
+          });
+
+          var wind = d3.select(element)
+            .append("div").text("Wind Speed and Direction")
+            .append("div")
+            .attr("class", "windChart")
+            .selectAll("div")
+            .data(windSpeeds)
+          .enter()
+            .append("div")
+            .text(function(d){ return d; });
   }
 };
 
