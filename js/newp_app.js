@@ -417,7 +417,7 @@ function initMap() {
     var marker = new google.maps.Marker({
       position: {lat: locationItem.location[0], lng: locationItem.location[1]},
       map: map,
-      icon: 'img/wave.svg',
+      icon: 'img/wave.png',
       title: locationItem.locName
     });
     // Create a marker info window
@@ -459,7 +459,7 @@ function initMap() {
                 lat: business.location.coordinate.latitude,
                 lng: business.location.coordinate.longitude},
               map: map,
-              icon: 'img/anchor.svg',
+              icon: 'img/anchor.png',
               title: business.name
             });
 
