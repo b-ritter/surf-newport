@@ -1,6 +1,6 @@
-// Hardcode the location data for the surf spots since
-// these don't really change much over time. The spot
-// id is required for the magicseaweed api.
+/** Hardcode the location data for the surf spots since
+* these don't really change much over time. The spot
+* id is required for the magicseaweed api */
 var locationData = [
   {
     "locName": "Newport Jetties",
@@ -35,7 +35,7 @@ var locationData = [
   }
 ];
 
-// Google map and surf location stuff
+/** Google map and surf location parameters */
 var map,
     mapCenter = { lat: 33.623201, lng: -117.9312093},
     defaultLoc = { locType: 'default'},
@@ -45,12 +45,11 @@ var map,
     currentItemDisplay = ko.observable(currentItem),
     categoryList = ko.observableArray([]),
     markerAnimationCycleLength = 2100,
-    // Yelp credentials and parameters
+    /** Yelp credentials and parameters */
     httpMethod = 'GET',
     yelpUrl = 'https://api.yelp.com/v2/search?',
     parameters = {
         bounds: '33.587063, -117.968421|33.671254, -117.867103',
-        // term: 'coffee, breakfast burritos, tacos, burgers',
         sort: '2',
         oauth_consumer_key : 'cxq1v3t-v5ZBP7fgQUCEkg',
         oauth_token : '_LqamVQhZLhs7LMDw62CeVXQPDfDVi_r',
@@ -61,13 +60,16 @@ var map,
     },
     consumerSecret = 'BAK4r2WoFYdc2nSoGrjD14pc7Bo',
     tokenSecret = 'qb99XpkZ-lV26f7eNQ1nVofsGN8',
-    // Create signature for the request
+    /** Create signature for the request */
     signature = oauthSignature.generate(httpMethod, yelpUrl, parameters, consumerSecret, tokenSecret,
        { encodeSignature: false});
-    // Add the signature to the query string
+    /** Add the signature to the query string */
     parameters.oauth_signature = signature;
 
-// Utility function to set the state of the app
+/**
+* @description Utility function to set the state of the app
+* @param {object} item - Loc object to be set as the one and only current Loc
+*/
 function setCurrent(item) {
   if (item.locType === 'surf'){
     if(currentItem.locType !== 'default'){
@@ -88,21 +90,19 @@ function setCurrent(item) {
   currentItemDisplay(item);
 }
 
-function setMap(item) {
-  // This is too aggressive
-  // item.marker().getMap().panTo(item.marker().getPosition());
-}
-
-// Custom binding to handle the drawing of the swell data
+/** Custom binding to handle the drawing of the swell data with d3 */
 ko.bindingHandlers.MSWswellChart = {
+  /**
+  * @description Creates custom Knockout.js binding. See Knockout.js
+  * documentation at http://knockoutjs.com/documentation/custom-bindings.html
+  */
   init: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext){
 
     var margin = {top: 20, right: 0, bottom: 20, left: 40},
-        // elementWidth = parseInt(d3.select(element).style("width"), 10),
         width = 400,
         height = 200,
         data = ko.unwrap(valueAccessor()),
-        // Extract a list of swell heights
+        /** Extract lists of surf data */
         primarySwellHeight = _.map(data, function(d){
           if(d){
             return d.swell.components.primary.height;
@@ -111,6 +111,16 @@ ko.bindingHandlers.MSWswellChart = {
         timeIntervals = _.map(data, function(d){
           if(d){
             return moment(d.timestamp * 1000).format('ha');
+          }
+        }),
+        windSpeeds = _.map(data, function(d){
+          if(d){
+            return d.wind.speed;
+          }
+        }),
+        windDirections = _.map(data, function(d){
+          if(d){
+            return d.wind.direction;
           }
         }),
         numItems = primarySwellHeight.length,
@@ -127,7 +137,7 @@ ko.bindingHandlers.MSWswellChart = {
             .attr("transform", "translate("+ margin.left +"," + margin.top + ")");
 
         console.log(data);
-        
+
         var y = d3.scale.linear()
           .domain([0, d3.max(allWaveHeights)])
           .range([height, 0]);
@@ -181,18 +191,7 @@ ko.bindingHandlers.MSWswellChart = {
           .attr("transform", "translate(" + (width - margin.left)/2 + ",0)")
           .text("Swell Height");
 
-          windSpeeds = _.map(data, function(d){
-            if(d){
-              return d.wind.speed;
-            }
-          });
-
-          windDirections = _.map(data, function(d){
-            if(d){
-              return d.wind.direction;
-            }
-          });
-
+        /** Wind info */
           var wind = d3.select(element)
             .append("div").text("Wind Speed and Direction")
             .append("div")
@@ -205,7 +204,12 @@ ko.bindingHandlers.MSWswellChart = {
   }
 };
 
-// Custom location object types for Knockout
+/**
+* @description Represents a location item
+* @constructor
+* @param {array} data - Location data
+* @returns Location object
+*/
 var Loc = function(data){
   var self = this;
   this.locName = ko.observable(data.locName);
@@ -224,7 +228,9 @@ var Loc = function(data){
   });
 };
 
-// Define method on prototype to open info window for a marker
+/**
+* @description Opens info window for current item
+*/
 Loc.prototype.openInfoWindow = function(){
   if(currentItem.locType !== 'default'){
     currentItem.markerInfo().close();
@@ -238,13 +244,16 @@ Loc.prototype.openInfoWindow = function(){
       self.marker().setAnimation(null);
     }, markerAnimationCycleLength);
   }
-  // making currentItem itself an observable prevents the info window
-  // from opening
   // setCurrent() sets an observable equal to the current item
   setCurrent(this);
 };
 
-// Specify stuff for surf loc
+/**
+* @description Represents a location item for a surf spot
+* @constructor
+* @param {array} data - Hard-coded Surf Location data
+* @returns Surf Location object
+*/
 SurfLoc = function(data){
   var self = this;
   this.locType = 'surf';
@@ -253,9 +262,9 @@ SurfLoc = function(data){
   this.forecastRange = [];
   this.locDescription = data.locDescription;
   this.forecastData = [];
-  // There are 8 intervals of forecast data per day
+  /** There are 8 intervals of forecast data per day */
   this.offset = 8;
-  // Show the first day of 8 intervals
+  /** Show the first day of 8 intervals */
   this.currentRange = [0, 8];
   this.spotID = data.spotID;
   this.marker().addListener('click',function(){
@@ -267,10 +276,13 @@ SurfLoc = function(data){
 SurfLoc.prototype = Object.create(Loc.prototype);
 SurfLoc.constructor = Loc;
 
+/**
+* @description Loads forecast info from Magic Seaweed API
+*/
 SurfLoc.prototype.loadInfo = function(){
   var self = this;
   if(self.forecast()[0] === null){
-    // Get the magic seaweed info on the selected spot
+    /** Get the magic seaweed info on the selected spot */
     $.ajax({
       url: 'http://magicseaweed.com/api/884371cf4fc4156f6e7320b603e18a66/forecast/?spot_id=' +
       self.spotID +
@@ -292,20 +304,30 @@ SurfLoc.prototype.loadInfo = function(){
   }
 };
 
+/**
+* @description Loads the set of forecast info for the next day
+*/
 SurfLoc.prototype.loadNextForecast = function(){
-  // There are 8 forecast intervals in one day
-  // Load the next 8 on click
+  /** There are 8 forecast intervals in one day
+  * Load the next 8 on click */
   this.setNextForecast(1);
 };
 
+/**
+* @description Loads the set of forecast info for the previous day
+*/
 SurfLoc.prototype.loadPrevForecast = function(){
   // There are 8 forecast intervals in one day
   this.setNextForecast(-1);
 };
 
+/**
+* @description Utility function to get next forecast
+* @returns Next forecast, either previous or next
+*/
 SurfLoc.prototype.setNextForecast = function(direction){
-  // Direction is 1 or -1
-  // Moves the range of forecast data to show up or down
+  /** Direction is 1 or -1
+  * Moves the range of forecast data to show up or down */
   var self = this;
   if( this.currentRange[0] + this.offset * direction < 0 ){
     this.currentRange = [this.forecastData.length - this.offset, this.forecastData.length];
@@ -319,11 +341,14 @@ SurfLoc.prototype.setNextForecast = function(direction){
   this.forecast(this.forecastData.slice(this.currentRange[0], this.currentRange[1]));
 };
 
-// Specify stuff for business loc
-
+/**
+* @description Represents a location item for a business
+* @constructor
+* @param {array} data - data from Yelp
+* @returns Business Location object
+*/
 BizLoc = function(data){
   this.locType = 'biz';
-  // this.businessInfo = ko.observable(data.businessInfo);
   this.snippet_text = data.businessInfo.snippet_text;
   this.display_phone = data.businessInfo.display_phone;
   this.url = data.businessInfo.url;
@@ -334,7 +359,9 @@ BizLoc = function(data){
 
 BizLoc.prototype = Object.create(Loc.prototype);
 
-// Setup the ViewModel for the markers
+/**
+* @description Knockout.js ViewModel for the app
+*/
 var NewportViewModel = function(){
   var self = this;
 
@@ -348,15 +375,15 @@ var NewportViewModel = function(){
         var itemChars = item.locName().toLowerCase();
         var searchTermChars = searchTerm().toLowerCase();
         if(itemChars.indexOf(searchTermChars) !== -1){
-          // Check if the marker is NOT visible
+          /** Check if the marker is NOT visible */
           if(!item.marker().getVisible()){
-            // If it wasn't visible, show it
+            /** If it wasn't visible, show it */
             item.marker().setVisible(true);
           }
-          // Give the item back to tempList to show it
+          /** Give the item back to tempList to show it */
           return item;
         } else {
-          // Turn off marker if it fails the filter test
+          /** Turn off marker if it fails the filter test */
           item.marker().setVisible(false);
         }
       });
@@ -401,38 +428,40 @@ var NewportViewModel = function(){
   };
 };
 
-// Define the callback function that kicks off the entire app
+/**
+* @description Google Maps API callback. Kicks-off the whole app
+*/
 function initMap() {
-  // First, we need to make the map object
-  // Markers need to reference this object
+  /** First, we need to make the map object
+  * Markers need to reference this object */
   map = new google.maps.Map(document.getElementById('map'), {
     center: {lat: mapCenter.lat, lng: mapCenter.lng },
     zoomControl: true,
     zoom: 13
   });
 
-  // Resize map when the viewport is resized
+  /** Resize map when the viewport is resized */
   google.maps.event.addDomListener(window, 'resize', function() {
    var center = map.getCenter();
    google.maps.event.trigger(map, 'resize');
    map.setCenter(center);
   });
 
-  // Make markers for each data item
+  /** Make markers for each data item */
   locationData.forEach(function(locationItem){
-    // Create a marker
+    /** Create a marker */
     var marker = new google.maps.Marker({
       position: {lat: locationItem.location[0], lng: locationItem.location[1]},
       map: map,
       icon: 'img/wave.png',
       title: locationItem.locName
     });
-    // Create a marker info window
+    /** Create a marker info window */
     var markerInfo = new google.maps.InfoWindow(
       {content: "<div class='infoWindow'><h2>"+locationItem.locName+"</h2></div>" }
     );
-    // Assign the map marker and info window to the locationItem,
-    // which is passed to Loc() to make an object with observable properties
+    /** Assign the map marker and info window to the locationItem,
+    * which is passed to Loc() to make an object with observable properties */
     locationItem.marker = marker;
     locationItem.markerInfo = markerInfo;
     locationItem.map = map;
@@ -441,9 +470,9 @@ function initMap() {
 
   ko.applyBindings(new NewportViewModel(), document.getElementById('NewportMesaApp'));
 
-  // Add Yelp data once the map is loaded
+  /** Add Yelp data once the map is loaded */
   google.maps.event.addListenerOnce(map, 'idle', function(){
-      // When the map is loaded, add the other locations
+      /** When the map is loaded, add the other locations */
       $.ajax({
         url: yelpUrl,
         jsonpCallback: 'cb',
@@ -452,7 +481,6 @@ function initMap() {
         cache: true,
         success: function(data){
           data.businesses.forEach(function(business){
-            // console.log(business);
             var categories = business.categories.reduce(function(previousValue, currentValue, currentIndex, array){
               var separator = "";
               if(currentIndex < array.length-1){
@@ -473,6 +501,7 @@ function initMap() {
             var markerInfo = new google.maps.InfoWindow(
               { content: "<div class='infoWindow'><h2>" + business.name + "</h2></div>" }
             );
+
             locationList.push(new BizLoc({
               marker: marker,
               markerInfo: markerInfo,

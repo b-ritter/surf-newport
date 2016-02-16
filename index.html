@@ -6,7 +6,6 @@
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <title>Newport Beach / Costa Mesa</title>
     <style>
-
         html, body {
           margin: 0;
           padding: 0;
@@ -67,7 +66,6 @@
         #NewportMesaDisplayPanel {
           display: flex;
           overflow: hidden;
-          /*height: 95vh;*/
         }
 
         #list {
@@ -165,16 +163,21 @@
           display: flex;
           justify-content: space-between;
         }
+
         @media (orientation: landscape) {
+
           header {
             height: 5vh;
           }
+
           #NewportMesaDisplayPanel {
             height: 95vh;
           }
+
           #info {
             width: 30vw;
           }
+
         }
 
         @media (orientation: portrait){
@@ -224,7 +227,6 @@
 
           .intro p {
             width: 100%;
-
           }
 
           .infoContact, .infoQuote{
@@ -234,6 +236,7 @@
           .forecast>div {
             width: 50%;
           }
+
         }
 
     </style>
@@ -242,13 +245,8 @@
     <div id="NewportMesaApp">
       <header>
         <h1>Newport/Mesa Surf</h1>
-        <div id="buttonFilters">
-          <!-- TODO: Remove or keep filtering
-          <button data-bind="click: showSurfSpots">Surf Spots</button>
-          <button data-bind="click: showRestaurants">Restaurants</button>
-          -->
-        </div>
       </header>
+
       <div id="NewportMesaDisplayPanel">
         <div id="list">
           <div class="list-items">
@@ -260,12 +258,15 @@
             </ul>
           </div>
         </div>
+
         <div id="mapContainer">
           <div id="map">
           </div>
         </div>
+
         <div data-bind="with: currentItemDisplay" id="info">
           <div id="info-data">
+
             <!-- ko if: locType === 'default' -->
             <div class="infoWrapper intro">
               <h1>About Newport/Mesa</h1>
@@ -278,6 +279,7 @@
               beach visited by all ages.</p>
             </div>
             <!-- /ko -->
+
             <!-- if data bind to check to see if this is a surf or business loc -->
             <!-- ko if: locType === 'surf' -->
             <div class="infoWrapper forecast">
@@ -291,13 +293,13 @@
                 </div>
                 <div data-bind="with: forecast">
                   <div data-bind="MSWswellChart: $data"></div>
-                  <!-- <div data-bind="windChart: $data"></div> -->
                 </div>
                 <button data-bind="click: $data.loadPrevForecast" name="prev">Previous day</button>
                 <button data-bind="click: $data.loadNextForecast" name="next">Next day</button>
               </div>
             </div>
             <!-- /ko -->
+
             <!-- ko if: locType === 'biz' -->
             <div class="infoWrapper">
               <div class="infoContact">
@@ -313,12 +315,12 @@
               </div>
             </div>
             <!-- /ko -->
+
           </div>
         </div>
       </div>
-
     </div>
-    <!-- <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.5.18/webfont.js"></script> -->
+
     <script>
       WebFontConfig = {
         google: {
@@ -340,7 +342,7 @@
     <script src="js/libs/oauth-signature.min.js"></script>
     <script src="js/libs/moment.min.js"></script>
     <script src="js/libs/d3.min.js"></script>
-    <script src= "js/newp_app.js"></script>
+    <script src= "js/newportmesa.js"></script>
     <script async defer
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtqzH53xQyC04PbQFV4brTqidjBzhr_dI&callback=initMap">
     </script>
