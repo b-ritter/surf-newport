@@ -102,33 +102,26 @@ ko.bindingHandlers.MSWswellChart = {
         width = 400,
         height = 200,
         data = ko.unwrap(valueAccessor()),
+        primarySwellHeight = [],
+        timeIntervals = [],
+        windSpeeds = [],
+        windDirections = [];
         /** Extract lists of surf data */
-        primarySwellHeight = _.map(data, function(d){
+        _.each(data, function(d){
           if(d){
-            return d.swell.components.primary.height;
+            primarySwellHeight.push(d.swell.components.primary.height);
+            timeIntervals.push(moment(d.timestamp * 1000).format('ha'));
+            windSpeeds.push(d.wind.speed);
           }
-        }),
-        timeIntervals = _.map(data, function(d){
-          if(d){
-            return moment(d.timestamp * 1000).format('ha');
-          }
-        }),
-        windSpeeds = _.map(data, function(d){
-          if(d){
-            return d.wind.speed;
-          }
-        }),
-        windDirections = _.map(data, function(d){
-          if(d){
-            return d.wind.direction;
-          }
-        }),
-        numItems = primarySwellHeight.length,
+        });
+
+        var numItems = primarySwellHeight.length,
         barWidth = width / numItems,
         space = 0.1 * barWidth,
-        allWaveHeights = bindingContext.$parent.forecastRange,
-        // creating the svg canvas
-        svg = d3.select(element)
+        allWaveHeights = bindingContext.$parent.forecastRange;
+
+        /** Create d3 charts */
+        var svg = d3.select(element)
             .append("svg")
             .attr("viewBox", "0 0 " + (width + margin.left + margin.right) + " " +
             (height + margin.top + margin.bottom))
@@ -136,24 +129,17 @@ ko.bindingHandlers.MSWswellChart = {
           .append("g")
             .attr("transform", "translate("+ margin.left +"," + margin.top + ")");
 
-        console.log(data);
-
         var y = d3.scale.linear()
           .domain([0, d3.max(allWaveHeights)])
-          .range([height, 0]);
-
-        var x = d3.scale.ordinal()
+          .range([height, 0]),
+        x = d3.scale.ordinal()
           .domain(timeIntervals)
-          .rangeBands([0, width]);
-
-
-        var yAxis = d3.svg.axis()
+          .rangeBands([0, width]),
+        yAxis = d3.svg.axis()
           .scale(y)
-          .orient("left");
-
-        var xAxis = d3.svg.axis()
+          .orient("left"),
+        xAxis = d3.svg.axis()
           .scale(x)
-          // .innerTickSize(0)
           .orient("bottom");
 
         svg.insert("g", "svg")
@@ -192,15 +178,15 @@ ko.bindingHandlers.MSWswellChart = {
           .text("Swell Height");
 
         /** Wind info */
-          var wind = d3.select(element)
-            .append("div").text("Wind Speed and Direction")
-            .append("div")
-            .attr("class", "windChart")
-            .selectAll("div")
-            .data(windSpeeds)
-          .enter()
-            .append("div")
-            .text(function(d){ return d; });
+        var wind = d3.select(element)
+          .append("div").text("Wind Speed and Direction")
+          .append("div")
+          .attr("class", "windChart")
+          .selectAll("div")
+          .data(windSpeeds)
+        .enter()
+          .append("div")
+          .text(function(d){ return d; });
   }
 };
 
