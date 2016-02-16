@@ -126,6 +126,8 @@ ko.bindingHandlers.MSWswellChart = {
           .append("g")
             .attr("transform", "translate("+ margin.left +"," + margin.top + ")");
 
+        console.log(data);
+        
         var y = d3.scale.linear()
           .domain([0, d3.max(allWaveHeights)])
           .range([height, 0]);
@@ -155,7 +157,6 @@ ko.bindingHandlers.MSWswellChart = {
           .call(xAxis);
 
         svg.selectAll(".bar")
-            // Could this data be extracted with a function instead?
             .data(primarySwellHeight)
             .enter().append("rect")
             .attr("height", function(d){
@@ -183,6 +184,12 @@ ko.bindingHandlers.MSWswellChart = {
           windSpeeds = _.map(data, function(d){
             if(d){
               return d.wind.speed;
+            }
+          });
+
+          windDirections = _.map(data, function(d){
+            if(d){
+              return d.wind.direction;
             }
           });
 
