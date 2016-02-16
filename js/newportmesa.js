@@ -104,14 +104,17 @@ ko.bindingHandlers.MSWswellChart = {
         data = ko.unwrap(valueAccessor()),
         primarySwellHeight = [],
         timeIntervals = [],
-        windSpeeds = [],
-        windDirections = [];
+        windData = [
+          [],
+          []
+        ];
         /** Extract lists of surf data */
         _.each(data, function(d){
           if(d){
             primarySwellHeight.push(d.swell.components.primary.height);
             timeIntervals.push(moment(d.timestamp * 1000).format('ha'));
-            windSpeeds.push(d.wind.speed);
+            windData[0].push(d.wind.direction);
+            windData[1].push(d.wind.speed);
           }
         });
 
@@ -129,6 +132,7 @@ ko.bindingHandlers.MSWswellChart = {
           .append("g")
             .attr("transform", "translate("+ margin.left +"," + margin.top + ")");
 
+            // TODO: Take off axes, add numbers to bars themselves
         var y = d3.scale.linear()
           .domain([0, d3.max(allWaveHeights)])
           .range([height, 0]),
@@ -183,10 +187,41 @@ ko.bindingHandlers.MSWswellChart = {
           .append("div")
           .attr("class", "windChart")
           .selectAll("div")
-          .data(windSpeeds)
+          .data(windData)
         .enter()
           .append("div")
-          .text(function(d){ return d; });
+          .attr("class", "windDatum");
+
+        /**
+        * Super hacky way to get the arrows to rotate and the numerical
+        * speeds to stay still. TODO: Look into binding data with objects
+        * in d3 instead to get more control.
+        */
+        var counterOuter = 0;
+        var counterInner = 0;
+        var wd = wind.selectAll(".windDatum")
+          .data(function(d){
+            return d;
+          })
+        .enter().append("div").style("transform", function(d){
+          if(counterOuter > 7){
+            return "rotate(0deg)";
+          }else{
+            counterOuter++;
+            return "rotate(" + d + "deg)";
+          }
+        })
+          .html(function(d) {
+            if(counterInner > 7){
+              return d;
+            }else{
+              counterInner++;
+              return '<svg viewBox="0 0 86.6 75">' +
+                      '<g>' +
+                        '<polygon fill="#FFFFFF" points="43.5,54.8 0,75 43.3,0 86.6,75 "/>' +
+                      '</g></svg>';
+            }
+          });
   }
 };
 
