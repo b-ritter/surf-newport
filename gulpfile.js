@@ -1,5 +1,6 @@
 var gulp = require('gulp'),
     uglify = require('gulp-uglify'),
+    concat = require('gulp-concat'),
     rename = require('gulp-rename'),
     autoprefixer = require('gulp-autoprefixer'),
     sass = require('gulp-sass'),
@@ -7,8 +8,8 @@ var gulp = require('gulp'),
     watchify = require('watchify'),
     source = require('vinyl-source-stream'),
     sourceFile = './_js/main.js',
-    destFolder = './_js',
-    destFile = 'newp_app.js';
+    destFolder = './_js/build',
+    destFile = 'newportmesa.js';
     var browserSync = require('browser-sync').create();
 
 gulp.task('browser-sync', function() {
@@ -41,18 +42,7 @@ gulp.task('styles', function() {
 });
 
 gulp.task('watch', function(){
-  //gulp.watch('scss/**/*.scss', ['styles']);
-
-  var bundler = watchify(sourceFile);
-  bundler.on('update', rebundle);
-
-  function rebundle() {
-    return bundler.bundle()
-      .pipe(source(destFile))
-      .pipe(gulp.dest(destFolder));
-  }
-
-  return rebundle();
+  gulp.watch('scss/**/*.scss', ['styles']);
 });
 
 gulp.task('min', function(){
@@ -64,4 +54,4 @@ gulp.task('min', function(){
 
 
 
-gulp.task('default', [ 'browserify', 'watch' ]);
+gulp.task('default', [ 'watch' ]);

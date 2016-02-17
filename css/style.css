@@ -1,0 +1,244 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: "Oswald", Helvetica, Arial, sans-serif;
+  color: white;
+  background-color: #2c3d67;
+  font-weight: 300;
+  font-size: 2.2vh;
+}
+
+ul, li, h1, p, a {
+  margin: 0; padding: 0;
+}
+
+a {
+  color: white;
+  text-decoration: none;
+}
+
+h1 {
+  font-size: 3vh;
+}
+
+a h1 {
+  display: inline;
+  border-bottom: .125em solid white;
+}
+
+h4 + p {
+  padding-bottom: 1em;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  /*margin: 2vh 0 0 2vh;*/
+}
+
+header h1 {
+  font-size: 4vh;
+  font-family: "industry-inc-stencil";
+  width: 70vw;
+  padding-left: 3vh;
+}
+
+header #buttonFilters {
+  width: 30vw;
+  text-align: right;
+  padding-right: 2vw;
+}
+
+#NewportMesaSearchPanel {
+  width: 100%;
+}
+
+#NewportMesaDisplayPanel {
+  display: flex;
+  overflow: hidden;
+}
+
+#list {
+  width: 25vw;
+  overflow: hidden;
+}
+
+.list-items {
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+  padding-left: 3vh;
+}
+
+#mapContainer {
+  width: 75vw;
+}
+
+#map {
+  margin: 0 0 2vh 2vh;
+  height: 90vh;
+}
+
+ul, li {
+  list-style-type: none;
+  cursor: pointer;
+}
+
+li:hover {
+  color: #20c5f9;
+}
+
+input {
+  font-family: "Oswald", Helvetica, Arial, sans-serif;
+  color: #32325d;
+  height: 4vh;
+  font-size: 2vh;
+  padding: .25em;
+  margin-bottom: 1vh;
+  width: calc(100% - 3vh);
+  box-sizing: border-box;
+  border-radius: .5em;
+  border: none;
+
+}
+.infoWrapper {
+  margin: 0 2vh;
+}
+
+.infoQuote {
+  background-color: white;
+  color: #32325d;
+  padding: .5em;
+  border-top-left-radius: 1em;
+  border-top-right-radius: 1em;
+  border-bottom-right-radius: 1em;
+  border-bottom-left-radius: 1em;
+}
+
+.currentItem {
+  font-weight: 400;
+  color: #20c5f9;
+}
+
+.snippet::before {
+  content: '"';
+}
+
+.snippet::after {
+  content: '"';
+}
+
+.snippet {
+  font-style: italic;
+}
+
+.infoWindow {
+  font-family: "Oswald";
+  color: #32325d;
+  font-weight: 300;
+}
+
+.chart {
+  padding-top: 3vh;
+}
+
+.axis line, .axis path {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 0;
+  shape-rendering: crispEdges;
+}
+
+.windChart {
+
+}
+
+.windDatum {
+  display: flex;
+  justify-content: space-around;
+}
+
+.windDatum div {
+  text-align: center;
+}
+
+.windDatum svg {
+  width: 80%;
+}
+
+@media (orientation: landscape) {
+
+  header {
+    height: 5vh;
+  }
+
+  #NewportMesaDisplayPanel {
+    height: 95vh;
+  }
+
+  #info {
+    width: 30vw;
+  }
+
+}
+
+@media (orientation: portrait){
+
+  #NewportMesaDisplayPanel {
+    flex-wrap: wrap;
+  }
+
+  #list, #map {
+    height: calc(75vh * .95);
+  }
+
+  #list {
+    height: calc(60vh * .95);
+  }
+
+  #mapContainer, #map {
+    height: calc(60vh * .95);
+  }
+
+  #mapContainer {
+    width: 56vw;
+    margin-right: 2vh;
+  }
+
+  #list {
+    width: 40vw;
+  }
+
+  #info {
+    width: 100vw;
+    /*min-height: calc(50vh * .95);*/
+  }
+
+  .infoWrapper {
+    display: flex;
+    justify-content: space-between;
+    padding: 1em;
+    margin-top: 2vh;
+    border-top: solid white .25em;
+  }
+
+  .intro {
+    flex-wrap: wrap;
+    padding-right: 3vh;
+  }
+
+  .intro p {
+    width: 100%;
+  }
+
+  .infoContact, .infoQuote{
+    width: 50%;
+  }
+
+  .forecast>div {
+    width: 50%;
+  }
+
+}
