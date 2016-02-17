@@ -3,35 +3,35 @@
 * id is required for the magicseaweed api */
 var locationData = [
   {
-    "locName": "Newport Jetties",
-    "locDescription": "Long stretch of beachbreak interspersed with several short, rock jetties.",
-    "spotID": "665",
-    "location": [ 33.613733, -117.934251 ]
+    'locName': 'Newport Jetties',
+    'locDescription': 'Long stretch of beachbreak interspersed with several short, rock jetties.',
+    'spotID': '665',
+    'location': [ 33.613733, -117.934251 ]
   },
   {
-    "locName": "Blackies",
-    "spotID": "2575",
-    "locDescription": "Occasionally epic, long wintertime sandbar lefts north of Newport Pier, in front of Blackie’s Bar.",
-    "location": [ 33.609367, -117.930719 ]
+    'locName': 'Blackies',
+    'spotID': '2575',
+    'locDescription': 'Occasionally epic, long wintertime sandbar lefts north of Newport Pier, in front of Blackie’s Bar.',
+    'location': [ 33.609367, -117.930719 ]
   },
   {
-    "locName": "River Jetties",
-    "spotID": "2599",
-    "locDescription": "Consistent, hollow peaks between the two jetties at the rivermouth.",
-    "location": [ 33.628515, -117.957601 ]
+    'locName': 'River Jetties',
+    'spotID': '2599',
+    'locDescription': 'Consistent, hollow peaks between the two jetties at the rivermouth.',
+    'location': [ 33.628515, -117.957601 ]
   },
   {
-    "locName": "The Wedge",
-    "spotID": "287",
-    "locDescription": "World-famous freak wave dominated by bodysurfers and bodyboarders, although surfers do enjoy some degree of success.",
-    "location": [ 33.593311, -117.881968 ]
+    'locName': 'The Wedge',
+    'spotID': '287',
+    'locDescription': 'World-famous freak wave dominated by bodysurfers and bodyboarders, although surfers do enjoy some degree of success.',
+    'location': [ 33.593311, -117.881968 ]
   },
 
   {
-    "locName": "Corona Del Mar",
-    "spotID": "2579",
-    "locDescription": "Quality, long sandbar rights, only during solid S swells, break off the east (southside) jetty of Newport Harbor.",
-    "location": [ 33.592816, -117.877136 ]
+    'locName': 'Corona Del Mar',
+    'spotID': '2579',
+    'locDescription': 'Quality, long sandbar rights, only during solid S swells, break off the east (southside) jetty of Newport Harbor.',
+    'location': [ 33.592816, -117.877136 ]
   }
 ];
 
@@ -123,14 +123,15 @@ ko.bindingHandlers.MSWswellChart = {
         space = 0.1 * barWidth,
         allWaveHeights = bindingContext.$parent.forecastRange;
 
+        console.log(windData);
         /** Create d3 charts */
         var svg = d3.select(element)
-            .append("svg")
-            .attr("viewBox", "0 0 " + (width + margin.left + margin.right) + " " +
+            .append('svg')
+            .attr('viewBox', '0 0 ' + (width + margin.left + margin.right) + ' ' +
             (height + margin.top + margin.bottom))
-            .attr("fill", "white")
-          .append("g")
-            .attr("transform", "translate("+ margin.left +"," + margin.top + ")");
+            .attr('fill', 'white')
+          .append('g')
+            .attr('transform', 'translate('+ margin.left +',' + margin.top + ')');
 
             // TODO: Take off axes, add numbers to bars themselves
         var y = d3.scale.linear()
@@ -141,74 +142,76 @@ ko.bindingHandlers.MSWswellChart = {
           .rangeBands([0, width]),
         yAxis = d3.svg.axis()
           .scale(y)
-          .orient("left"),
+          .orient('left'),
         xAxis = d3.svg.axis()
           .scale(x)
-          .orient("bottom");
+          .orient('bottom');
 
-        svg.insert("g", "svg")
-          .attr("class", "y axis")
-          .attr("transform", "translate(0,0)")
+        svg.insert('g', 'svg')
+          .attr('class', 'y axis')
+          .attr('transform', 'translate(0,0)')
           .call(yAxis);
 
-        svg.insert("g", "svg")
-          .attr("class", "x axis")
-          .attr("transform", "translate(0,"+ height+ ")")
+        svg.insert('g', 'svg')
+          .attr('class', 'x axis')
+          .attr('transform', 'translate(0,'+ height+ ')')
           .call(xAxis);
 
-        svg.selectAll(".bar")
+        svg.selectAll('.bar')
             .data(primarySwellHeight)
-            .enter().append("rect")
-            .attr("height", function(d){
+            .enter().append('rect')
+            .attr('height', function(d){
               if(d){
                 return height - y(d);
               }
             })
-            .attr("width", barWidth - space)
-            .attr("x", function(d, i){
+            .attr('width', barWidth - space)
+            .attr('x', function(d, i){
               if(d){
                 return barWidth * i ;
               }
             })
-            .attr("y", function(d, i){
+            .attr('y', function(d, i){
               if(d) {
                 return y(d);
               }
             })
-            .attr("class", "bar");
+            .attr('class', 'bar');
 
-        svg.append("text")
-          .attr("transform", "translate(" + (width - margin.left)/2 + ",0)")
-          .text("Swell Height");
+        svg.append('text')
+          .attr('transform', 'translate(' + (width - margin.left)/2 + ',0)')
+          .text('Swell Height');
 
         /** Wind info */
         var wind = d3.select(element)
-          .append("div").text("Wind Speed and Direction")
-          .append("div")
-          .attr("class", "windChart")
-          .selectAll("div")
+          .append('div').text('Wind Speed and Direction')
+          .append('div')
+          .attr('class', 'windChart')
+          .selectAll('div')
           .data(windData)
         .enter()
-          .append("div")
-          .attr("class", "windDatum");
+          .append('div')
+          .attr('class', 'windDatum');
 
         /**
         * Super hacky way to get the arrows to rotate and the numerical
         * speeds to stay still. TODO: Look into binding data with objects
         * in d3 instead to get more control.
         */
+
+
         var counterOuter = 0;
         var counterInner = 0;
-        var wd = wind.selectAll(".windDatum")
+        var wd = wind.selectAll('.windDatum')
           .data(function(d){
             return d;
           })
-        .enter().append("div").style("transform", function(d){
+        .enter().append('div').style('transform', function(d){
           if(counterOuter > 7){
-            return "rotate(0deg)";
+            return 'rotate(0deg)';
           }else{
             counterOuter++;
-            return "rotate(" + d + "deg)";
+            return 'rotate(' + d + 'deg)';
           }
         })
           .html(function(d) {
@@ -218,10 +221,12 @@ ko.bindingHandlers.MSWswellChart = {
               counterInner++;
               return '<svg viewBox="0 0 86.6 75">' +
                       '<g>' +
-                        '<polygon fill="#FFFFFF" points="43.5,54.8 0,75 43.3,0 86.6,75 "/>' +
+                        '<polygon fill="#FFFFFF" points="43.5,54.8 0,75 43.3,0 86.6,75" />' +
                       '</g></svg>';
             }
           });
+
+
   }
 };
 
@@ -319,7 +324,7 @@ SurfLoc.prototype.loadInfo = function(){
         self.currentDayIndex = self.offset;
       },
       error: function(e){
-        self.forecast("Couldn't load forecast");
+        self.forecast('Couldn\'t load forecast');
       }
     });
   }
@@ -479,7 +484,7 @@ function initMap() {
     });
     /** Create a marker info window */
     var markerInfo = new google.maps.InfoWindow(
-      {content: "<div class='infoWindow'><h2>"+locationItem.locName+"</h2></div>" }
+      {content: '<div class="infoWindow"><h2>'+locationItem.locName+'</h2></div>' }
     );
     /** Assign the map marker and info window to the locationItem,
     * which is passed to Loc() to make an object with observable properties */
@@ -503,12 +508,12 @@ function initMap() {
         success: function(data){
           data.businesses.forEach(function(business){
             var categories = business.categories.reduce(function(previousValue, currentValue, currentIndex, array){
-              var separator = "";
+              var separator = '';
               if(currentIndex < array.length-1){
-               separator = ", ";
+               separator = ', ';
               }
               return previousValue + currentValue[0] + separator;
-            }, "");
+            }, '');
 
             var marker = new google.maps.Marker({
               position: {
@@ -520,7 +525,7 @@ function initMap() {
             });
 
             var markerInfo = new google.maps.InfoWindow(
-              { content: "<div class='infoWindow'><h2>" + business.name + "</h2></div>" }
+              { content: '<div class="infoWindow"><h2>' + business.name + '</h2></div>' }
             );
 
             locationList.push(new BizLoc({
