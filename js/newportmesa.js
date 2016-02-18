@@ -168,9 +168,8 @@ ko.bindingHandlers.MSWswellChart = {
                       '</g></svg>';
             }
           });
-
-
   }
+
 };
 
 
@@ -454,6 +453,15 @@ function setCurrent(item) {
   currentItem = item;
   currentItemDisplay(item);
 }
+
+/**
+*@description Handles when the Google Maps API fails to load
+*/
+setTimeout(function() {
+  if(!window.google || !window.google.maps) {
+    $('#map').text("Bummer! Failed to load Google Maps");
+  }
+}, 5000);
 
 /**
 * @description Google Maps API callback. Kicks-off the whole app

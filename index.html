@@ -54,6 +54,12 @@
                 <p data-bind="text: locDescription"></p>
               </div>
               <div class="chart">
+                <!-- ko ifnot: forecast()[0] -->
+                <p>Loading</p>
+                <!-- /ko -->
+                <!-- ko if: forecast()[0] -->
+
+
                 <div data-bind="with: forecast()[0]">
                   <p data-bind="text: moment(timestamp*1000).format('dddd, MMMM Do YYYY')"></p>
                 </div>
@@ -62,7 +68,9 @@
                 </div>
                 <button data-bind="click: $data.loadPrevForecast" name="prev">Previous day</button>
                 <button data-bind="click: $data.loadNextForecast" name="next">Next day</button>
+                <!-- /ko -->
               </div>
+
             </div>
             <!-- /ko -->
 
@@ -108,9 +116,14 @@
     <script src="js/libs/oauth-signature.min.js"></script>
     <script src="js/libs/moment.min.js"></script>
     <script src="js/libs/d3.min.js"></script>
-    <script src= "js/newportmesa.js"></script>
+    <script src="js/newportmesa.js"></script>
+  <!--  Used in testing for a google map load fail
+    <script async defer
+      src="https://googleapis.com/maps/api/js?key=AIzaSyAtqzH53xQyC04PbQFV4brTqidjBzhr_dI&callback=initMap">
+    -->
     <script async defer
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtqzH53xQyC04PbQFV4brTqidjBzhr_dI&callback=initMap">
+
     </script>
   </body>
 </html>
