@@ -4,34 +4,25 @@ var gulp = require('gulp'),
     rename = require('gulp-rename'),
     autoprefixer = require('gulp-autoprefixer'),
     sass = require('gulp-sass'),
-    browserify = require('browserify'),
-    watchify = require('watchify'),
-    source = require('vinyl-source-stream'),
-    sourceFile = './_js/main.js',
-    destFolder = './_js/build',
-    destFile = 'newportmesa.js';
-    var browserSync = require('browser-sync').create();
+    app_js_path = 'js/src/',
+    app_js = [
+      'data.js',
+      'ko-custom-binding.js',
+      'ko-viewmodel.js',
+      'locationobjects.js',
+      'google-map.js'
+    ];
 
-gulp.task('browser-sync', function() {
-    browserSync.init({
-        port: 8888,
-        open: false,
-        server: {
-          baseDir: ''
-        },
-        middleware: function (req, res, next) {
-            console.log('Adding CORS header for ' + req.method + ': ' + req.url);
-            res.setHeader('Access-Control-Allow-Origin', '*');
-            next();
-        }
-    });
+app_js.forEach(function(currentValue, index, app_js){
+  app_js[index] = app_js_path + currentValue;
 });
 
-gulp.task('browserify', function() {
-  return browserify(sourceFile)
-  .bundle()
-  .pipe(source(destFile))
-  .pipe(gulp.dest(destFolder));
+gulp.task('concat-js', function(){
+  console.log(app_js);
+  return gulp.src(app_js)
+    .pipe(concat('*.js'))
+    .pipe(rename('newportmesa.js'))
+    .pipe(gulp.dest('js/'));
 });
 
 gulp.task('styles', function() {
@@ -43,15 +34,7 @@ gulp.task('styles', function() {
 
 gulp.task('watch', function(){
   gulp.watch('scss/**/*.scss', ['styles']);
+  gulp.watch(app_js, ['concat-js']);
 });
-
-gulp.task('min', function(){
-	return gulp.src('_js/**/*.js')
-		.pipe(uglify())
-		.pipe(rename({suffix: '.min'}))
-		.pipe(gulp.dest(''));
-});
-
-
 
 gulp.task('default', [ 'watch' ]);

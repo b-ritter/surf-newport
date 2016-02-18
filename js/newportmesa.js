@@ -35,61 +35,6 @@ var locationData = [
   }
 ];
 
-/** Google map and surf location parameters */
-var map,
-    mapCenter = { lat: 33.623201, lng: -117.9312093},
-    defaultLoc = { locType: 'default'},
-    currentItem = defaultLoc,
-    locationList = ko.observableArray([]),
-    searchTerm = ko.observable(''),
-    currentItemDisplay = ko.observable(currentItem),
-    categoryList = ko.observableArray([]),
-    markerAnimationCycleLength = 2100,
-    /** Yelp credentials and parameters */
-    httpMethod = 'GET',
-    yelpUrl = 'https://api.yelp.com/v2/search?',
-    parameters = {
-        bounds: '33.587063, -117.968421|33.671254, -117.867103',
-        sort: '2',
-        oauth_consumer_key : 'cxq1v3t-v5ZBP7fgQUCEkg',
-        oauth_token : '_LqamVQhZLhs7LMDw62CeVXQPDfDVi_r',
-        oauth_nonce : Math.floor(Math.random() * 1e12).toString(),
-        oauth_timestamp : Math.floor(Date.now() / 1000),
-        oauth_signature_method : 'HMAC-SHA1',
-        callback: 'cb'
-    },
-    consumerSecret = 'BAK4r2WoFYdc2nSoGrjD14pc7Bo',
-    tokenSecret = 'qb99XpkZ-lV26f7eNQ1nVofsGN8',
-    /** Create signature for the request */
-    signature = oauthSignature.generate(httpMethod, yelpUrl, parameters, consumerSecret, tokenSecret,
-       { encodeSignature: false});
-    /** Add the signature to the query string */
-    parameters.oauth_signature = signature;
-
-/**
-* @description Utility function to set the state of the app
-* @param {object} item - Loc object to be set as the one and only current Loc
-*/
-function setCurrent(item) {
-  if (item.locType === 'surf'){
-    if(currentItem.locType !== 'default'){
-      currentItem.isActive(false);
-    }
-    item.isActive(true);
-    item.loadInfo();
-
-  } else if (item.locType === 'biz') {
-    if(currentItem.locType !== 'default'){
-      currentItem.isActive(false);
-    }
-    item.isActive(true);
-  } else if (item.locType === 'default' && currentItem.locType !== 'default'){
-    currentItem.isActive(false);
-  }
-  currentItem = item;
-  currentItemDisplay(item);
-}
-
 /** Custom binding to handle the drawing of the swell data with d3 */
 ko.bindingHandlers.MSWswellChart = {
   /**
@@ -117,13 +62,12 @@ ko.bindingHandlers.MSWswellChart = {
             windData[1].push(d.wind.speed);
           }
         });
-
+        // console.log(windData);
         var numItems = primarySwellHeight.length,
         barWidth = width / numItems,
         space = 0.1 * barWidth,
         allWaveHeights = bindingContext.$parent.forecastRange;
 
-        console.log(windData);
         /** Create d3 charts */
         var svg = d3.select(element)
             .append('svg')
@@ -135,17 +79,17 @@ ko.bindingHandlers.MSWswellChart = {
 
             // TODO: Take off axes, add numbers to bars themselves
         var y = d3.scale.linear()
-          .domain([0, d3.max(allWaveHeights)])
-          .range([height, 0]),
-        x = d3.scale.ordinal()
-          .domain(timeIntervals)
-          .rangeBands([0, width]),
-        yAxis = d3.svg.axis()
-          .scale(y)
-          .orient('left'),
-        xAxis = d3.svg.axis()
-          .scale(x)
-          .orient('bottom');
+            .domain([0, d3.max(allWaveHeights)])
+            .range([height, 0]),
+          x = d3.scale.ordinal()
+            .domain(timeIntervals)
+            .rangeBands([0, width]),
+          yAxis = d3.svg.axis()
+            .scale(y)
+            .orient('left'),
+          xAxis = d3.svg.axis()
+            .scale(x)
+            .orient('bottom');
 
         svg.insert('g', 'svg')
           .attr('class', 'y axis')
@@ -158,25 +102,25 @@ ko.bindingHandlers.MSWswellChart = {
           .call(xAxis);
 
         svg.selectAll('.bar')
-            .data(primarySwellHeight)
-            .enter().append('rect')
-            .attr('height', function(d){
-              if(d){
-                return height - y(d);
-              }
-            })
-            .attr('width', barWidth - space)
-            .attr('x', function(d, i){
-              if(d){
-                return barWidth * i ;
-              }
-            })
-            .attr('y', function(d, i){
-              if(d) {
-                return y(d);
-              }
-            })
-            .attr('class', 'bar');
+          .data(primarySwellHeight)
+          .enter().append('rect')
+          .attr('height', function(d){
+            if(d){
+              return height - y(d);
+            }
+          })
+          .attr('width', barWidth - space)
+          .attr('x', function(d, i){
+            if(d){
+              return barWidth * i ;
+            }
+          })
+          .attr('y', function(d, i){
+            if(d) {
+              return y(d);
+            }
+          })
+          .attr('class', 'bar');
 
         svg.append('text')
           .attr('transform', 'translate(' + (width - margin.left)/2 + ',0)')
@@ -198,7 +142,6 @@ ko.bindingHandlers.MSWswellChart = {
         * speeds to stay still. TODO: Look into binding data with objects
         * in d3 instead to get more control.
         */
-
 
         var counterOuter = 0;
         var counterInner = 0;
@@ -229,6 +172,77 @@ ko.bindingHandlers.MSWswellChart = {
 
   }
 };
+
+
+/**
+* @description Knockout.js ViewModel for the app
+*/
+var NewportViewModel = function(){
+  var self = this;
+
+  this.locations = ko.computed(function(){
+      // Live filtering of locations
+      if(currentItem.locType !== 'default'){
+        currentItem.markerInfo().close();
+      }
+
+      var tempList = _.filter(locationList(), function(item){
+        var itemChars = item.locName().toLowerCase();
+        var searchTermChars = searchTerm().toLowerCase();
+        if(itemChars.indexOf(searchTermChars) !== -1){
+          /** Check if the marker is NOT visible */
+          if(!item.marker().getVisible()){
+            /** If it wasn't visible, show it */
+            item.marker().setVisible(true);
+          }
+          /** Give the item back to tempList to show it */
+          return item;
+        } else {
+          /** Turn off marker if it fails the filter test */
+          item.marker().setVisible(false);
+        }
+      });
+
+      if(tempList.length === 0){
+        // If there are no results that pass the filter,
+        // show them all
+        setCurrent(defaultLoc);
+        return locationList();
+      } else if (tempList.length === 1){
+        // If there is only one match, set it as the current item
+        setCurrent(tempList[0]);
+        currentItem.openInfoWindow();
+        return currentItem;
+      } else {
+        setCurrent(defaultLoc);
+        return tempList;
+      }
+  });
+
+  this.showLocation = function(){
+    this.openInfoWindow();
+    setCurrent(this);
+  };
+
+  /* TODO: Remove or keep filter buttons */
+  this.showSurfSpots = function(){
+    locationList(self.filterByType('surf'));
+  };
+
+  this.showRestaurants = function(){
+    locationList(self.filterByType('biz'));
+  };
+
+  this.filterByType = function(type){
+    var locs = _.filter(locationList(), function(item){
+      if (item.locType === type){
+        return item;
+      }
+    });
+    return locs;
+  };
+};
+
 
 /**
 * @description Represents a location item
@@ -385,74 +399,61 @@ BizLoc = function(data){
 
 BizLoc.prototype = Object.create(Loc.prototype);
 
+
+/** Google map and surf location parameters */
+var map,
+    mapCenter = { lat: 33.623201, lng: -117.9312093},
+    defaultLoc = { locType: 'default'},
+    currentItem = defaultLoc,
+    locationList = ko.observableArray([]),
+    searchTerm = ko.observable(''),
+    currentItemDisplay = ko.observable(currentItem),
+    categoryList = ko.observableArray([]),
+    markerAnimationCycleLength = 2100,
+    /** Yelp credentials and parameters */
+    httpMethod = 'GET',
+    yelpUrl = 'https://api.yelp.com/v2/search?',
+    parameters = {
+        bounds: '33.587063, -117.968421|33.671254, -117.867103',
+        sort: '2',
+        oauth_consumer_key : 'cxq1v3t-v5ZBP7fgQUCEkg',
+        oauth_token : '_LqamVQhZLhs7LMDw62CeVXQPDfDVi_r',
+        oauth_nonce : Math.floor(Math.random() * 1e12).toString(),
+        oauth_timestamp : Math.floor(Date.now() / 1000),
+        oauth_signature_method : 'HMAC-SHA1',
+        callback: 'cb'
+    },
+    consumerSecret = 'BAK4r2WoFYdc2nSoGrjD14pc7Bo',
+    tokenSecret = 'qb99XpkZ-lV26f7eNQ1nVofsGN8',
+    /** Create signature for the request */
+    signature = oauthSignature.generate(httpMethod, yelpUrl, parameters, consumerSecret, tokenSecret,
+       { encodeSignature: false});
+    /** Add the signature to the query string */
+    parameters.oauth_signature = signature;
+
 /**
-* @description Knockout.js ViewModel for the app
+* @description Utility function to set the state of the app
+* @param {object} item - Loc object to be set as the one and only current Loc
 */
-var NewportViewModel = function(){
-  var self = this;
+function setCurrent(item) {
+  if (item.locType === 'surf'){
+    if(currentItem.locType !== 'default'){
+      currentItem.isActive(false);
+    }
+    item.isActive(true);
+    item.loadInfo();
 
-  this.locations = ko.computed(function(){
-      // Live filtering of locations
-      if(currentItem.locType !== 'default'){
-        currentItem.markerInfo().close();
-      }
-
-      var tempList = _.filter(locationList(), function(item){
-        var itemChars = item.locName().toLowerCase();
-        var searchTermChars = searchTerm().toLowerCase();
-        if(itemChars.indexOf(searchTermChars) !== -1){
-          /** Check if the marker is NOT visible */
-          if(!item.marker().getVisible()){
-            /** If it wasn't visible, show it */
-            item.marker().setVisible(true);
-          }
-          /** Give the item back to tempList to show it */
-          return item;
-        } else {
-          /** Turn off marker if it fails the filter test */
-          item.marker().setVisible(false);
-        }
-      });
-
-      if(tempList.length === 0){
-        // If there are no results that pass the filter,
-        // show them all
-        setCurrent(defaultLoc);
-        return locationList();
-      } else if (tempList.length === 1){
-        // If there is only one match, set it as the current item
-        setCurrent(tempList[0]);
-        currentItem.openInfoWindow();
-        return currentItem;
-      } else {
-        setCurrent(defaultLoc);
-        return tempList;
-      }
-  });
-
-  this.showLocation = function(){
-    this.openInfoWindow();
-    setCurrent(this);
-  };
-
-  /* TODO: Remove or keep filter buttons */
-  this.showSurfSpots = function(){
-    locationList(self.filterByType('surf'));
-  };
-
-  this.showRestaurants = function(){
-    locationList(self.filterByType('biz'));
-  };
-
-  this.filterByType = function(type){
-    var locs = _.filter(locationList(), function(item){
-      if (item.locType === type){
-        return item;
-      }
-    });
-    return locs;
-  };
-};
+  } else if (item.locType === 'biz') {
+    if(currentItem.locType !== 'default'){
+      currentItem.isActive(false);
+    }
+    item.isActive(true);
+  } else if (item.locType === 'default' && currentItem.locType !== 'default'){
+    currentItem.isActive(false);
+  }
+  currentItem = item;
+  currentItemDisplay(item);
+}
 
 /**
 * @description Google Maps API callback. Kicks-off the whole app

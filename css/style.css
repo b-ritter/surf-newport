@@ -7,92 +7,80 @@ html, body {
   color: white;
   background-color: #2c3d67;
   font-weight: 300;
-  font-size: 2.2vh;
-}
+  font-size: 2.2vh; }
 
 ul, li, h1, p, a {
-  margin: 0; padding: 0;
-}
+  margin: 0;
+  padding: 0; }
 
 a {
   color: white;
-  text-decoration: none;
-}
+  text-decoration: none; }
 
 h1 {
-  font-size: 3vh;
-}
+  font-size: 3vh; }
 
 a h1 {
   display: inline;
-  border-bottom: .125em solid white;
-}
+  border-bottom: .125em solid white; }
 
 h4 + p {
-  padding-bottom: 1em;
-}
+  padding-bottom: 1em; }
 
 header {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
-  justify-content: space-between;
-  /*margin: 2vh 0 0 2vh;*/
-}
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  /*margin: 2vh 0 0 2vh;*/ }
 
 header h1 {
   font-size: 4vh;
   font-family: "industry-inc-stencil";
   width: 70vw;
-  padding-left: 3vh;
-}
-
-header #buttonFilters {
-  width: 30vw;
-  text-align: right;
-  padding-right: 2vw;
-}
+  padding-left: 3vh; }
 
 #NewportMesaSearchPanel {
-  width: 100%;
-}
+  width: 100%; }
 
 #NewportMesaDisplayPanel {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
-  overflow: hidden;
-}
+  overflow: hidden; }
 
 #list {
   width: 25vw;
-  overflow: hidden;
-}
+  overflow: hidden; }
 
 .list-items {
   height: 100%;
   width: 100%;
   overflow: auto;
-  padding-left: 3vh;
-}
+  padding-left: 3vh; }
 
 #mapContainer {
-  width: 75vw;
-}
+  width: 75vw; }
 
 #map {
   margin: 0 0 2vh 2vh;
-  height: 90vh;
-}
+  height: 90vh; }
 
 ul, li {
   list-style-type: none;
-  cursor: pointer;
-}
+  cursor: pointer; }
 
 li:hover {
-  color: #20c5f9;
-}
+  color: #20c5f9; }
 
 input {
   font-family: "Oswald", Helvetica, Arial, sans-serif;
-  color: #32325d;
+  color: #2c3d67;
   height: 4vh;
   font-size: 2vh;
   padding: .25em;
@@ -100,145 +88,109 @@ input {
   width: calc(100% - 3vh);
   box-sizing: border-box;
   border-radius: .5em;
-  border: none;
+  border: none; }
 
-}
 .infoWrapper {
-  margin: 0 2vh;
-}
+  margin: 0 2vh; }
 
 .infoQuote {
   background-color: white;
-  color: #32325d;
+  color: #2c3d67;
   padding: .5em;
   border-top-left-radius: 1em;
   border-top-right-radius: 1em;
   border-bottom-right-radius: 1em;
-  border-bottom-left-radius: 1em;
-}
+  border-bottom-left-radius: 1em; }
 
 .currentItem {
   font-weight: 400;
-  color: #20c5f9;
-}
+  color: #20c5f9; }
 
 .snippet::before {
-  content: '"';
-}
+  content: '"'; }
 
 .snippet::after {
-  content: '"';
-}
+  content: '"'; }
 
 .snippet {
-  font-style: italic;
-}
+  font-style: italic; }
 
 .infoWindow {
   font-family: "Oswald";
-  color: #32325d;
-  font-weight: 300;
-}
+  color: #2c3d67;
+  font-weight: 300; }
 
 .chart {
-  padding-top: 3vh;
-}
+  padding-top: 3vh; }
 
 .axis line, .axis path {
   fill: none;
   stroke: #fff;
   stroke-width: 0;
-  shape-rendering: crispEdges;
-}
-
-.windChart {
-
-}
+  shape-rendering: crispEdges; }
 
 .windDatum {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
-  justify-content: space-around;
-}
+  -webkit-justify-content: space-around;
+      -ms-flex-pack: distribute;
+          justify-content: space-around; }
 
 .windDatum div {
-  text-align: center;
-}
+  text-align: center; }
 
 .windDatum svg {
-  width: 80%;
-}
+  width: 80%; }
 
 @media (orientation: landscape) {
-
   header {
-    height: 5vh;
-  }
-
+    height: 5vh; }
   #NewportMesaDisplayPanel {
-    height: 95vh;
-  }
-
+    height: 95vh; }
   #info {
-    width: 30vw;
-  }
+    width: 30vw; } }
 
-}
-
-@media (orientation: portrait){
-
+@media (orientation: portrait) {
   #NewportMesaDisplayPanel {
-    flex-wrap: wrap;
-  }
-
+    -webkit-flex-wrap: wrap;
+        -ms-flex-wrap: wrap;
+            flex-wrap: wrap; }
   #list, #map {
-    height: calc(75vh * .95);
-  }
-
+    height: calc(75vh * .95); }
   #list {
-    height: calc(60vh * .95);
-  }
-
+    height: calc(60vh * .95); }
   #mapContainer, #map {
-    height: calc(60vh * .95);
-  }
-
+    height: calc(60vh * .95); }
   #mapContainer {
     width: 56vw;
-    margin-right: 2vh;
-  }
-
+    margin-right: 2vh; }
   #list {
-    width: 40vw;
-  }
-
+    width: 40vw; }
   #info {
     width: 100vw;
-    /*min-height: calc(50vh * .95);*/
-  }
-
+    /*min-height: calc(50vh * .95);*/ }
   .infoWrapper {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
     display: flex;
-    justify-content: space-between;
+    -webkit-box-pack: justify;
+    -webkit-justify-content: space-between;
+        -ms-flex-pack: justify;
+            justify-content: space-between;
     padding: 1em;
     margin-top: 2vh;
-    border-top: solid white .25em;
-  }
-
+    border-top: solid white .25em; }
   .intro {
-    flex-wrap: wrap;
-    padding-right: 3vh;
-  }
-
+    -webkit-flex-wrap: wrap;
+        -ms-flex-wrap: wrap;
+            flex-wrap: wrap;
+    padding-right: 3vh; }
   .intro p {
-    width: 100%;
-  }
-
-  .infoContact, .infoQuote{
-    width: 50%;
-  }
-
-  .forecast>div {
-    width: 50%;
-  }
-
-}
+    width: 100%; }
+  .infoContact, .infoQuote {
+    width: 50%; }
+  .forecast > div {
+    width: 50%; } }
