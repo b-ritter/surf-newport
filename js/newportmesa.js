@@ -42,24 +42,23 @@ ko.bindingHandlers.MSWswellChart = {
   * documentation at http://knockoutjs.com/documentation/custom-bindings.html
   */
   init: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext){
-
-    var margin = {top: 20, right: 0, bottom: 20, left: 40},
+    var margin = {top: 29, right: 0, bottom: 20, left: 0},
         width = 400,
         height = 200,
         data = ko.unwrap(valueAccessor()),
         primarySwellHeight = [],
         timeIntervals = [],
         windData = [
-          [],
-          []
+          { type:'direction', values: [] },
+          { type:'speed', values: [] }
         ];
         /** Extract lists of surf data */
         _.each(data, function(d){
           if(d){
             primarySwellHeight.push(d.swell.components.primary.height);
             timeIntervals.push(moment(d.timestamp * 1000).format('ha'));
-            windData[0].push(d.wind.direction);
-            windData[1].push(d.wind.speed);
+            windData[0].values.push(d.wind.direction);
+            windData[1].values.push(d.wind.speed);
           }
         });
         // console.log(windData);
@@ -69,52 +68,41 @@ ko.bindingHandlers.MSWswellChart = {
         allWaveHeights = bindingContext.$parent.forecastRange;
 
         /** Create d3 charts */
-        var svg = d3.select(element)
-            .append('svg')
+        var charts = d3.select(element);
+
+        charts.append('div').attr('class', 'datum')
+          .selectAll('div')
+            .data(timeIntervals)
+            .enter()
+            .append('div')
+            .attr('class', 'time')
+            .text(function(d){ return d; });
+
+        var swellChart = charts.append('svg')
             .attr('viewBox', '0 0 ' + (width + margin.left + margin.right) + ' ' +
             (height + margin.top + margin.bottom))
             .attr('fill', 'white')
           .append('g')
             .attr('transform', 'translate('+ margin.left +',' + margin.top + ')');
 
-            // TODO: Take off axes, add numbers to bars themselves
         var y = d3.scale.linear()
             .domain([0, d3.max(allWaveHeights)])
-            .range([height, 0]),
-          x = d3.scale.ordinal()
-            .domain(timeIntervals)
-            .rangeBands([0, width]),
-          yAxis = d3.svg.axis()
-            .scale(y)
-            .orient('left'),
-          xAxis = d3.svg.axis()
-            .scale(x)
-            .orient('bottom');
+            .range([height, 0]);
 
-        svg.insert('g', 'svg')
-          .attr('class', 'y axis')
-          .attr('transform', 'translate(0,0)')
-          .call(yAxis);
-
-        svg.insert('g', 'svg')
-          .attr('class', 'x axis')
-          .attr('transform', 'translate(0,'+ height+ ')')
-          .call(xAxis);
-
-        svg.selectAll('.bar')
+        var bars = swellChart.selectAll('.bar')
           .data(primarySwellHeight)
-          .enter().append('rect')
+          .enter().append('g')
+          .attr('transform', function(d, i ){
+            return 'translate(' + i * barWidth + ',0)';
+          });
+
+        var barLines = bars.append('rect')
           .attr('height', function(d){
             if(d){
               return height - y(d);
             }
           })
           .attr('width', barWidth - space)
-          .attr('x', function(d, i){
-            if(d){
-              return barWidth * i ;
-            }
-          })
           .attr('y', function(d, i){
             if(d) {
               return y(d);
@@ -122,52 +110,48 @@ ko.bindingHandlers.MSWswellChart = {
           })
           .attr('class', 'bar');
 
-        svg.append('text')
-          .attr('transform', 'translate(' + (width - margin.left)/2 + ',0)')
-          .text('Swell Height');
+        bars.append('text')
+          .attr('transform', 'translate(' + barWidth/2 + ', ' + (height - space) + ')')
+          .html(function(d){ return d; });
 
-        /** Wind info */
-        var wind = d3.select(element)
-          .append('div').text('Wind Speed and Direction')
-          .append('div')
-          .attr('class', 'windChart')
-          .selectAll('div')
-          .data(windData)
-        .enter()
-          .append('div')
-          .attr('class', 'windDatum');
+        charts.append('div')
+            .append('p')
+            .text('Swell Height (ft.)');
+        /* Wind Data */
+        var wind = charts.append('div');
 
-        /**
-        * Super hacky way to get the arrows to rotate and the numerical
-        * speeds to stay still. TODO: Look into binding data with objects
-        * in d3 instead to get more control.
-        */
+        var windDatasets = wind.append('div').selectAll('div')
+                  .data(windData)
+                .enter()
+                  .append('div')
+                  .attr('class', 'datum')
+                  .attr('id', function(d){ return d.type; });
 
-        var counterOuter = 0;
-        var counterInner = 0;
-        var wd = wind.selectAll('.windDatum')
-          .data(function(d){
-            return d;
-          })
-        .enter().append('div').style('transform', function(d){
-          if(counterOuter > 7){
-            return 'rotate(0deg)';
-          }else{
-            counterOuter++;
-            return 'rotate(' + d + 'deg)';
-          }
-        })
-          .html(function(d) {
-            if(counterInner > 7){
-              return d;
-            }else{
-              counterInner++;
-              return '<svg viewBox="0 0 86.6 75">' +
-                      '<g>' +
-                        '<polygon fill="#FFFFFF" points="43.5,54.8 0,75 43.3,0 86.6,75" />' +
-                      '</g></svg>';
-            }
-          });
+        windDatasets.filter('#direction')
+                  .selectAll('div')
+                  .data( function(d){
+                    return d.values; })
+                 .enter()
+                  .append('div')
+                 .datum(function(d){ return d; })
+                  .style('transform', function(d){
+                              return 'scale(.6) rotate(' + d + 'deg)';
+                            }
+                          )
+                  .html('<svg viewBox="0 0 86.6 75">' +
+                              '<g>' +
+                                '<polygon fill="#fff" points="43.5,54.8 0,75 43.3,0 86.6,75" />' +
+                              '</g></svg>');
+
+        windDatasets.filter('#speed')
+            .selectAll('div')
+                      .data( function(d){ return d.values; })
+                     .enter()
+                      .append('div')
+                      .text(function(d){ return d; });
+
+        wind.append('p').text('Wind Speed and Direction')
+                  .append('div');
   }
 
 };

@@ -44,6 +44,10 @@ header h1 {
   width: 70vw;
   padding-left: 3vh; }
 
+h2 {
+  margin: 0;
+  font-size: 2vh; }
+
 #NewportMesaSearchPanel {
   width: 100%; }
 
@@ -129,7 +133,13 @@ input {
   stroke-width: 0;
   shape-rendering: crispEdges; }
 
-.windDatum {
+.chart g text {
+  fill: #2c3d67;
+  font-size: 4vh;
+  font-weight: bold;
+  text-anchor: middle; }
+
+.datum {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -138,10 +148,15 @@ input {
       -ms-flex-pack: distribute;
           justify-content: space-around; }
 
-.windDatum div {
-  text-align: center; }
+.datum div {
+  text-align: center;
+  width: calc(100% / 8); }
 
-.windDatum svg {
+.datum .time {
+  text-align: left;
+  font-size: 1.75vh; }
+
+.datum svg {
   width: 80%; }
 
 @media (orientation: landscape) {
