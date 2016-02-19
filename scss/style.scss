@@ -144,6 +144,11 @@ input {
   padding-top: 3vh;
 }
 
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 1vh;
+}
 .axis line, .axis path {
   fill: none;
   stroke: #fff;
@@ -156,6 +161,10 @@ input {
   font-size: 4vh;
   font-weight: bold;
   text-anchor: middle;
+}
+
+.wind {
+  padding-top: 2vh;
 }
 
 .datum {

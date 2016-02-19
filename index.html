@@ -66,11 +66,14 @@
                 <div data-bind="with: forecast()[0]">
                   <h2 data-bind="text: moment(timestamp*1000).format('dddd, MMMM Do YYYY')"></h2>
                 </div>
+                <div class="buttons">
+                  <button data-bind="click: $data.loadPrevForecast" name="prev">Previous day</button>
+                  <button data-bind="click: $data.loadNextForecast" name="next">Next day</button>
+                </div>
                 <div data-bind="with: forecast">
                   <div data-bind="MSWswellChart: $data"></div>
                 </div>
-                <button data-bind="click: $data.loadPrevForecast" name="prev">Previous day</button>
-                <button data-bind="click: $data.loadNextForecast" name="next">Next day</button>
+
                 <!-- /ko -->
               </div>
 

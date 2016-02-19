@@ -5,7 +5,7 @@ ko.bindingHandlers.MSWswellChart = {
   * documentation at http://knockoutjs.com/documentation/custom-bindings.html
   */
   init: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext){
-    var margin = {top: 29, right: 0, bottom: 20, left: 0},
+    var margin = {top: 29, right: 0, bottom: 0, left: 0},
         width = 400,
         height = 200,
         data = ko.unwrap(valueAccessor()),
@@ -81,7 +81,7 @@ ko.bindingHandlers.MSWswellChart = {
             .append('p')
             .text('Swell Height (ft.)');
         /* Wind Data */
-        var wind = charts.append('div');
+        var wind = charts.append('div').attr('class', 'wind');
 
         var windDatasets = wind.append('div').selectAll('div')
                   .data(windData)
