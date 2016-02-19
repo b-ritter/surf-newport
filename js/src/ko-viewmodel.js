@@ -4,7 +4,6 @@
 */
 var NewportViewModel = function(){
   var self = this;
-
   this.locations = ko.computed(function(){
       // Live filtering of locations
       if(currentItem.locType !== 'default'){

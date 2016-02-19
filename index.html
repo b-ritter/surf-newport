@@ -19,10 +19,10 @@
             <div id="NewportMesaSearchPanel">
               <input data-bind="textInput: searchTerm" type="text" name="mapFilter" placeholder="Filter Results">
             </div>
-            <!-- ko ifnot: locations().length > 5 -->
+            <!-- ko if: isLoading -->
             <p>Loading...</p>
             <!-- /ko -->
-            <!-- ko if: locations().length > 5 -->
+            <!-- ko ifnot: isLoading -->
             <ul data-bind="foreach: locations" id="location-list">
               <li data-bind="text: $data.locName, click: $parent.showLocation, css: { currentItem : $data.isActive() > 0 }"></li>
             </ul>
@@ -74,7 +74,6 @@
                 <div data-bind="with: forecast">
                   <div data-bind="MSWswellChart: $data"></div>
                 </div>
-
                 <!-- /ko -->
               </div>
 

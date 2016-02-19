@@ -6,6 +6,7 @@ var map,
     currentItem = defaultLoc,
     locationList = ko.observableArray([]),
     searchTerm = ko.observable(''),
+    isLoading = ko.observable(true),
     currentItemDisplay = ko.observable(currentItem),
     categoryList = ko.observableArray([]),
     markerAnimationCycleLength = 2100,
@@ -151,6 +152,7 @@ function initMap() {
               }
             }));
           });
+          isLoading(false);
         }
       }).
       fail(

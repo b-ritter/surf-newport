@@ -162,7 +162,6 @@ ko.bindingHandlers.MSWswellChart = {
 */
 var NewportViewModel = function(){
   var self = this;
-
   this.locations = ko.computed(function(){
       // Live filtering of locations
       if(currentItem.locType !== 'default'){
@@ -390,6 +389,7 @@ var map,
     currentItem = defaultLoc,
     locationList = ko.observableArray([]),
     searchTerm = ko.observable(''),
+    isLoading = ko.observable(true),
     currentItemDisplay = ko.observable(currentItem),
     categoryList = ko.observableArray([]),
     markerAnimationCycleLength = 2100,
@@ -535,6 +535,7 @@ function initMap() {
               }
             }));
           });
+          isLoading(false);
         }
       }).
       fail(
