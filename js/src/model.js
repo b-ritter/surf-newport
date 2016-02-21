@@ -1,5 +1,13 @@
 var Model = function() {
   'use strict';
+
+  // Center of the map: Newport Beach, CA
+  this.mapCenter = {
+    lat: 33.623201,
+    lng: -117.9312093
+  };
+
+  // A list of permanent locations, with Magic Seaweed Spot ID code
   this.locationData = [{
     'locName': 'Newport Jetties',
     'locDescription': 'Long stretch of beachbreak interspersed with several short, rock jetties.',
@@ -40,13 +48,12 @@ var Model = function() {
     this.marker = ko.observable(data.marker);
     this.markerInfo = ko.observable(data.markerInfo);
     this.map = ko.observable(data.map);
-    // TODO: move surf-specific items into surf subclass
-    // this.phone = ko.observable(data.phone);
+    this.errorMessage = '';
     this.marker().addListener('click', function() {
       self.openInfoWindow();
     });
     this.markerInfo().addListener('closeclick', function() {
-      setCurrent(defaultLoc);
+      // setCurrent(defaultLoc);
       searchTerm('');
     });
   };
@@ -68,7 +75,7 @@ var Model = function() {
       }, markerAnimationCycleLength);
     }
     // setCurrent() sets an observable equal to the current item
-    setCurrent(this);
+    // setCurrent(this);
   };
 
   /**
@@ -92,12 +99,12 @@ var Model = function() {
     this.spotID = data.spotID;
     this.marker().addListener('click', function() {
       self.loadInfo();
-      setCurrent(self);
+      // setCurrent(self);
     });
   };
 
-  this.SurfLoc.prototype = Object.create(Loc.prototype);
-  this.SurfLoc.constructor = Loc;
+  this.SurfLoc.prototype = Object.create(this.Loc.prototype);
+  this.SurfLoc.constructor = this.Loc;
 
   /**
    * @description Loads forecast info from Magic Seaweed API
@@ -110,19 +117,17 @@ var Model = function() {
         url: 'http://magicseaweed.com/api/884371cf4fc4156f6e7320b603e18a66/forecast/?spot_id=' +
           self.spotID +
           '&units=us&fields=swell.*,wind.*,timestamp',
-        dataType: 'jsonp',
-        success: function(data) {
-          self.forecastData = data;
-          self.forecastRange = _.map(data, function(element) {
-            return element.swell.components.primary.height;
-          });
-
-          self.forecast(data.slice(0, self.offset));
-          self.currentDayIndex = self.offset;
-        },
-        error: function(e) {
-          self.forecast('Couldn\'t load forecast');
-        }
+        dataType: 'jsonp'})
+      .done(function(data){
+        self.forecastData = data;
+        self.forecastRange = _.map(data, function(element) {
+          return element.swell.components.primary.height;
+        });
+        self.forecast(data.slice(0, self.offset));
+        self.currentDayIndex = self.offset;
+      })
+      .fail(function(error) {
+        self.errorMessage('Couldn\'t load forecast');
       });
     }
   };
@@ -180,6 +185,6 @@ var Model = function() {
     Loc.call(this, data);
   };
 
-  this.BizLoc.prototype = Object.create(Loc.prototype);
+  this.BizLoc.prototype = Object.create(this.Loc.prototype);
 
 };

@@ -6,11 +6,9 @@ var gulp = require('gulp'),
     sass = require('gulp-sass'),
     app_js_path = 'js/src/',
     app_js = [
-      'data.js',
+      'model.js',
       'ko-custom-binding.js',
-      'ko-viewmodel.js',
-      'locationobjects.js',
-      'google-map.js'
+      'ko-viewmodel.js'
     ];
 
 app_js.forEach(function(currentValue, index, app_js){
@@ -18,7 +16,7 @@ app_js.forEach(function(currentValue, index, app_js){
 });
 
 gulp.task('concat-js', function(){
-  console.log(app_js);
+  console.log('yo');
   return gulp.src(app_js)
     .pipe(concat('*.js'))
     .pipe(rename('newportmesa.js'))

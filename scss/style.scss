@@ -47,20 +47,22 @@ header h1 {
   width: 70vw;
   padding-left: 3vh;
 }
+
 h2 {
   margin: 0;
   font-size: 2vh;
 }
-#NewportMesaSearchPanel {
-  width: 100%;
-}
 
-#NewportMesaDisplayPanel {
+.newport-mesa-display-panel {
   display: flex;
   overflow: hidden;
 }
 
-#list {
+.search-panel {
+  width: 100%;
+}
+
+.list {
   width: 25vw;
   overflow: hidden;
 }
@@ -72,11 +74,11 @@ h2 {
   padding-left: 3vh;
 }
 
-#mapContainer {
+.mapContainer {
   width: 75vw;
 }
 
-#map {
+.map {
   margin: 0 0 2vh 2vh;
   height: 90vh;
 }
@@ -193,11 +195,11 @@ input {
     height: 5vh;
   }
 
-  #NewportMesaDisplayPanel {
+  .newport-mesa-display-panel {
     height: 95vh;
   }
 
-  #info {
+  .info {
     width: 30vw;
   }
 
@@ -205,32 +207,32 @@ input {
 
 @media (orientation: portrait){
 
-  #NewportMesaDisplayPanel {
+  .newport-mesa-display-panel {
     flex-wrap: wrap;
   }
 
-  #list, #map {
+  .list, .map {
     height: calc(75vh * .95);
   }
 
-  #list {
+  .list {
     height: calc(60vh * .95);
   }
 
-  #mapContainer, #map {
+  .mapContainer, .map {
     height: calc(60vh * .95);
   }
 
-  #mapContainer {
+  .mapContainer {
     width: 56vw;
     margin-right: 2vh;
   }
 
-  #list {
+  .list {
     width: 40vw;
   }
 
-  #info {
+  .info {
     width: 100vw;
     /*min-height: calc(50vh * .95);*/
   }

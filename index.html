@@ -5,28 +5,38 @@
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <title>Newport Beach / Costa Mesa</title>
-    <style>
-      html,
-      body {
-        margin: 0;
-        padding: 0;
-      }
-      .map {
-        width: 100vw;
-        height: 100vh;
-      }
-    </style>
+    <link href="css/style.css" rel="stylesheet">
   </head>
   <body>
-    <div class="newport-mesa-app">
-      <div class="map">
-      </div>
+
+      <header>
+        <h1>Newport/Mesa Surf</h1>
+        <div data-bind="text: currentLocation"></div>
+      </header>
+      <div class="newport-mesa-display-panel">
+        <section class="list">
+            <div class="list-items">
+              <div class="search-panel">
+                <input data-bind="textInput: searchTerm" type="text" name="mapFilter" placeholder="Filter Results">
+              </div>
+              <!-- ko if: isLoading -->
+              <p>Loading...</p>
+              <!-- /ko -->
+              <!-- ko ifnot: isLoading -->
+              <ul data-bind="foreach: locations" id="location-list">
+                <li data-bind="text: $data.locName, click: $parent.showLocation, css: { currentItem : $data.isActive() > 0 }"></li>
+              </ul>
+              <!-- /ko -->
+            </div>
+        </section>
+        <section class="mapContainer">
+          <div class="map"></div>
+        </section>
+        <section class="info">
+          <div class="info-data">
+          </div>
+        </section>
     </div>
-
-    <!-- <script async defer
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtqzH53xQyC04PbQFV4brTqidjBzhr_dI&callback=initMap">
-    </script> -->
-
     <script src="js/libs/jquery.min.js"></script>
     <script src="js/libs/knockout-3.4.0.js"></script>
     <script src="js/libs/underscore-min.js"></script>

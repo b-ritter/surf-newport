@@ -2,51 +2,67 @@ var m = new Model();
 
 var NewportMesaViewModel = function() {
   'use strict';
-  console.log(m.locationData);
-};
-/** Magic Seaweed Sample API Request */
-$.ajax('http://magicseaweed.com/api/884371cf4fc4156f6e7320b603e18a66/forecast/?spot_id=665', {
-  dataType: 'jsonp'
-}).
-fail(function(error) {
-    console.log(error);
-  })
-  .done(function(data) {
-    console.log(data);
-  });
+  var self = this;
+  // DOM element to bind to the map to
+  var $map = document.querySelector('.map');
 
-/** Google Maps Sample API Request */
-$.ajax('https://maps.googleapis.com/maps/api/js?key=AIzaSyAtqzH53xQyC04PbQFV4brTqidjBzhr_dI', {
-  dataType: 'jsonp'
-}).
-fail(function(error) {
-    console.log(error);
+  // Get the search term from the input
+  this.searchTerm = ko.observable('');
+  // Checks if Yelp locations are loading
+  this.isLoading = ko.observable(true);
+
+  // Checks if surf forecast is loading
+  this.isForecastLoading = ko.observable(true);
+
+  // List of locations to be displayed
+  this.locations = ko.observableArray([]);
+
+  // The current location item
+  this.currentLocation = ko.observable(null);
+
+  // Sets the current location
+  this.setCurrent = function(item){
+    self.currentLocation(item);
+  };
+
+  // Creates the map
+  this.map = ko.observable($.ajax('https://maps.googleapis.com/maps/api/js?key=AIzaSyAtqzH53xQyC04PbQFV4brTqidjBzhr_dI', {
+    dataType: 'jsonp'
+  }).
+  fail(function(xhr, status) {
+      alert('Google Maps could not load at this time. Please try again later.');
+      return null;
   })
   .done(function(data) {
-    var $map = document.querySelector('.map'),
-      mapCenter = {
-        lat: 33.623201,
-        lng: -117.9312093
-      },
-      map = new google.maps.Map($map, {
+      var map = new google.maps.Map($map, {
         center: {
-          lat: mapCenter.lat,
-          lng: mapCenter.lng
+          lat: m.mapCenter.lat,
+          lng: m.mapCenter.lng
         },
         zoomControl: true,
         zoom: 13
       });
+      self.addLocationsToMap(map);
+      return map;
+  }));
 
-    var marker = new google.maps.Marker({
-      position: {
-        lat: mapCenter.lat,
-        lng: mapCenter.lng
-      },
-      map: map,
-      icon: 'img/anchor.png',
-      title: 'Newport Beach'
-    });
+  /**
+  * @description Populates the map with markers
+  * Only fires if the map is loaded successfully
+  */
+  this.addLocationsToMap = function(map) {
+      var item = 'Newport Beach';
+      var marker = new google.maps.Marker({
+        position: {lat: m.mapCenter.lat, lng: m.mapCenter.lng },
+        map: map,
+        icon: 'img/anchor.png',
+        title: item
+      });
+      marker.addListener('click', function(){
+        self.setCurrent(item);
+      });
+  };
+};
 
-  });
-
-ko.applyBindings(new NewportMesaViewModel(), document.querySelector('.cat-app'));
+// Apply knockout bindings to DOM
+ko.applyBindings(new NewportMesaViewModel(), document.querySelector('.newport-mesa-app'));
