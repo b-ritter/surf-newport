@@ -8,37 +8,51 @@
     <link href="css/style.css" rel="stylesheet">
   </head>
   <body>
-
       <header>
         <h1>Newport/Mesa Surf</h1>
-        <div data-bind="text: currentLocation"></div>
       </header>
       <div class="newport-mesa-display-panel">
         <section class="list">
             <div class="list-items">
+              <!-- ko if: yelpStatus() === 'loading' -->
+              <p>Loading...</p>
+              <!-- /ko -->
+              <!-- ko if: yelpStatus() === 'fail' -->
+              <div class="yelpFail">
+                <p> Bummer! Your Yelp restaurant search failed to load. Please check out the surf spots below and try again soon...</p>
+              </div>
+              <!-- /ko -->
+              <!-- ko if: yelpStatus() === 'success' -->
               <div class="search-panel">
                 <input data-bind="textInput: searchTerm" type="text" name="mapFilter" placeholder="Filter Results">
               </div>
-              <!-- ko if: isLoading -->
-              <p>Loading...</p>
-              <!-- /ko -->
-              <!-- ko ifnot: isLoading -->
-              <ul data-bind="foreach: locations" id="location-list">
-                <li data-bind="text: $data.locName, click: $parent.showLocation, css: { currentItem : $data.isActive() > 0 }"></li>
+              <ul data-bind="foreach: locations">
+                <li data-bind="text: $data"></li>
               </ul>
               <!-- /ko -->
             </div>
         </section>
         <section class="mapContainer">
+          <!-- ko if: googleMapsStatus() === 'loading' -->
+          <p> Loading... </p>
+          <!-- /ko -->
+          <!-- ko if: googleMapsStatus() === 'fail' -->
+          <p> Bummer! Your map of Newport Beach failed to load. </p>
+          <!-- /ko -->
+
           <div class="map"></div>
+
         </section>
         <section class="info">
           <div class="info-data">
+            <div data-bind="text: currentLocation"></div>
           </div>
         </section>
     </div>
     <script src="js/libs/jquery.min.js"></script>
     <script src="js/libs/knockout-3.4.0.js"></script>
+    <script src="js/libs/oauth-signature.min.js"></script>
+    <script src="js/libs/moment.min.js"></script>
     <script src="js/libs/underscore-min.js"></script>
     <script src="js/libs/d3.min.js"></script>
     <script src="js/newportmesa.js"></script>

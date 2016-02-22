@@ -1,5 +1,15 @@
+var isYelpLoading = ko.observable(true);
+
 var Model = function() {
   'use strict';
+
+  var self = this;
+
+  // Checks if Yelp locations are loading
+
+
+  // Checks if Yelp has Failed
+  this.yelpFailed = ko.observable(false);
 
   // Center of the map: Newport Beach, CA
   this.mapCenter = {
@@ -34,6 +44,8 @@ var Model = function() {
     'locDescription': 'Quality, long sandbar rights, only during solid S swells, break off the east (southside) jetty of Newport Harbor.',
     'location': [33.592816, -117.877136]
   }];
+
+
 
   /**
    * @description Represents a location item
