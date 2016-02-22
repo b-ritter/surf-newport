@@ -5,7 +5,15 @@ var NewportMesaViewModel = function() {
 
   // Constants
   var AJAX_TIMEOUT_LENGTH = 8000,
-  STATUS = { loading: 'loading', fail: 'fail', success: 'success' };
+  BOUNCE_DURATION = 2100,
+  STATUS = {
+    loading: 'loading',
+    fail: 'fail',
+    success: 'success',
+    biz: 'biz',
+    default: 'default',
+    surf: 'surf'
+  };
 
   // Store reference to ViewModel object
   var self = this;
@@ -13,11 +21,15 @@ var NewportMesaViewModel = function() {
   // DOM element to bind to the map to
   var $map = document.querySelector('.map');
 
+  // The Google Map itself
+  // Value set on success
+  this.map = null;
+
   // Get the search term from the input
   this.searchTerm = ko.observable('');
 
   // Checks if surf forecast is loading
-  this.isForecastLoading = ko.observable(true);
+  this.mswForecastStatus = ko.observable(STATUS.loading);
 
   // Reports Google Maps's status
   this.googleMapsStatus = ko.observable(STATUS.loading);
@@ -31,9 +43,30 @@ var NewportMesaViewModel = function() {
   // The current location item
   this.currentLocation = ko.observable(null);
 
+  // Reports the current location type
+  this.currentLocationType = ko.observable(STATUS.default);
+
   /** @description Sets the current Yelp or Surf spot item
   */
   this.setCurrent = function(item){
+    var previousLocation = self.currentLocation();
+    if(previousLocation){
+      previousLocation.markerInfo.close();
+      previousLocation.marker.setAnimation(null);
+      previousLocation.isActive(false);
+    }
+    if(item !== null){
+      item.markerInfo.open(self.map, item.marker);
+      if(!item.marker.getAnimation()){
+        item.marker.setAnimation(google.maps.Animation.BOUNCE);
+        setTimeout(function(){
+          item.marker.setAnimation(null);
+        }, BOUNCE_DURATION);
+      }
+      item.isActive(true);
+      self.currentLocationType(item.locType);
+    }
+
     self.currentLocation(item);
   };
 
@@ -53,7 +86,7 @@ var NewportMesaViewModel = function() {
       .done(function(data) {
         clearTimeout(googleMapsTimeout);
         self.googleMapsStatus(STATUS.success);
-        var map = new google.maps.Map($map, {
+        self.map = new google.maps.Map($map, {
           center: {
             lat: m.mapCenter.lat,
             lng: m.mapCenter.lng
@@ -61,7 +94,7 @@ var NewportMesaViewModel = function() {
           zoomControl: true,
           zoom: 13
         });
-        return map;
+        return data;
       });
   }
 
@@ -112,9 +145,81 @@ var NewportMesaViewModel = function() {
   */
   $.when(googleMaps(), getYelpData()).done(
     function(googleMaps, yelpData){
+
+      /** @description
+      * Populates the initial location list with the surf locations
+      */
+      _.each(m.locationData, function(item){
+
+        item.marker = new google.maps.Marker({
+          position: {
+            lat: item.location[0],
+            lng: item.location[1]},
+          map: self.map,
+          icon: 'img/wave.png',
+          title: item.name
+        });
+
+        item.locType = 'surf';
+
+        item.isActive = ko.observable(false);
+
+        item.marker.addListener('click', function(){
+          self.setCurrent(item);
+        });
+
+        item.markerInfo = new google.maps.InfoWindow(
+          { content: '<div class="infoWindow"><h2>' + item.locName + '</h2></div>' }
+        );
+
+        item.markerInfo.addListener('closeclick', function(){
+            self.setCurrent(null);
+        });
+        
+        self.locations.push(item);
+      });
+
+      /** @description
+      * Adds Yelp locations to the map
+      */
       _.each(yelpData[0].businesses, function(item){
-        // TODO: Populate the list with Loc objects
-        self.locations.push(item.name);
+        var selfItem = item;
+        item.categories = item.categories.reduce(function(previousValue, currentValue, currentIndex, array){
+              var separator = '';
+              if(currentIndex < array.length-1){
+               separator = ', ';
+              }
+              return previousValue + currentValue[0] + separator;
+            }, '');
+
+        item.marker = new google.maps.Marker({
+          position: {
+            lat: item.location.coordinate.latitude,
+            lng: item.location.coordinate.longitude},
+          map: self.map,
+          icon: 'img/anchor.png',
+          title: item.name
+        });
+
+        item.locType = 'biz';
+
+        item.isActive = ko.observable(false);
+
+        item.marker.addListener('click', function(){
+          self.setCurrent(item);
+        });
+
+        item.markerInfo = new google.maps.InfoWindow(
+          { content: '<div class="infoWindow"><h2>' + item.name + '</h2></div>' }
+        );
+
+        item.markerInfo.addListener('closeclick', function(){
+            self.setCurrent(null);
+        });
+
+        item.locName = item.name;
+
+        self.locations.push(item);
       });
   });
 
@@ -137,4 +242,6 @@ var NewportMesaViewModel = function() {
 };
 
 // Apply knockout bindings to DOM
-ko.applyBindings(new NewportMesaViewModel(), document.querySelector('.newport-mesa-app'));
+$(document).ready(function(){
+  ko.applyBindings(new NewportMesaViewModel(), document.querySelector('.newport-mesa-app'));
+});

@@ -8,6 +8,7 @@
     <link href="css/style.css" rel="stylesheet">
   </head>
   <body>
+    <div data-bind="visible: true" style="display: none">
       <header>
         <h1>Newport/Mesa Surf</h1>
       </header>
@@ -27,7 +28,7 @@
                 <input data-bind="textInput: searchTerm" type="text" name="mapFilter" placeholder="Filter Results">
               </div>
               <ul data-bind="foreach: locations">
-                <li data-bind="text: $data"></li>
+                <li data-bind="text: $data.locName, click: function(){ $parent.setCurrent($data) }, css: { currentItem : $data.isActive() > 0 }"></li>
               </ul>
               <!-- /ko -->
             </div>
@@ -39,22 +40,39 @@
           <!-- ko if: googleMapsStatus() === 'fail' -->
           <p> Bummer! Your map of Newport Beach failed to load. </p>
           <!-- /ko -->
-
           <div class="map"></div>
-
         </section>
         <section class="info">
-          <div class="info-data">
-            <div data-bind="text: currentLocation"></div>
+          <!-- ko if: currentLocationType() === 'biz' -->
+          <div class="infoWrapper" data-bind="with: currentLocation">
+              <div class="infoContact">
+                <a data-bind="attr: { href: $data.url }">
+                  <h1 data-bind="text: $data.locName"></h1>
+                </a>
+                <h4 data-bind="text: $data.display_phone"></h4>
+                <p data-bind="text: $data.categories"></p>
+              </div>
+              <div class="infoQuote">
+                <p data-bind="text: $data.snippet_text" class="snippet"></p>
+                <img data-bind="attr: { src: $data.rating_img_url }"/>
+              </div>
+            </div>
+          <!-- /ko -->
+          <!-- ko if: currentLocationType() === 'surf' -->
+          <div class="info-data" data-bind="with: currentLocation">
+            <h1 data-bind="text: $data.locName"></h1>
           </div>
+          <!-- /ko -->
+
         </section>
     </div>
-    <script src="js/libs/jquery.min.js"></script>
-    <script src="js/libs/knockout-3.4.0.js"></script>
-    <script src="js/libs/oauth-signature.min.js"></script>
-    <script src="js/libs/moment.min.js"></script>
-    <script src="js/libs/underscore-min.js"></script>
-    <script src="js/libs/d3.min.js"></script>
-    <script src="js/newportmesa.js"></script>
+  </div>
+  <script src="js/libs/jquery.min.js"></script>
+  <script src="js/libs/knockout-3.4.0.js"></script>
+  <script src="js/libs/oauth-signature.min.js"></script>
+  <script src="js/libs/moment.min.js"></script>
+  <script src="js/libs/underscore-min.js"></script>
+  <script src="js/libs/d3.min.js"></script>
+  <script src="js/newportmesa.js"></script>
   </body>
 </html>
