@@ -4,9 +4,10 @@ var NewportMesaViewModel = function() {
   'use strict';
 
   // Constants
-  var AJAX_TIMEOUT_LENGTH = 8000,
-  BOUNCE_DURATION = 2100,
-  STATUS = {
+  var AJAX_TIMEOUT_LENGTH = 8000, // How long to wait for Ajax calls
+  BOUNCE_DURATION = 2100, // Used for the markers
+  OFFSET = 8, // Used for the surf forecast
+  STATUS = { // Status states for various components of the app
     loading: 'loading',
     fail: 'fail',
     success: 'success',
@@ -41,32 +42,28 @@ var NewportMesaViewModel = function() {
   this.locations = ko.observableArray();
 
   // The current location item
-  this.currentLocation = ko.observable(null);
-
-  // Reports the current location type
-  this.currentLocationType = ko.observable(STATUS.default);
+  this.currentLocation = ko.observable(m.defaultLocation);
 
   /** @description Sets the current Yelp or Surf spot item
   */
   this.setCurrent = function(item){
     var previousLocation = self.currentLocation();
-    if(previousLocation){
+    if(previousLocation.locType !== 'default'){
       previousLocation.markerInfo.close();
       previousLocation.marker.setAnimation(null);
       previousLocation.isActive(false);
     }
-    if(item !== null){
-      item.markerInfo.open(self.map, item.marker);
-      if(!item.marker.getAnimation()){
-        item.marker.setAnimation(google.maps.Animation.BOUNCE);
-        setTimeout(function(){
-          item.marker.setAnimation(null);
-        }, BOUNCE_DURATION);
-      }
-      item.isActive(true);
-      self.currentLocationType(item.locType);
+    if(item.locType === 'surf'){
+      item.loadForecast();
     }
-
+    item.markerInfo.open(self.map, item.marker);
+    if(!item.marker.getAnimation()){
+      item.marker.setAnimation(google.maps.Animation.BOUNCE);
+      setTimeout(function(){
+        item.marker.setAnimation(null);
+      }, BOUNCE_DURATION);
+    }
+    item.isActive(true);
     self.currentLocation(item);
   };
 
@@ -133,34 +130,72 @@ var NewportMesaViewModel = function() {
             dataType: 'jsonp',
             data: parameters,
             cache: true })
-    .done(function(data){
-      clearTimeout(yelpTimeout);
-      self.yelpStatus(STATUS.success);
-      return data;
-    });
+      .done(function(data){
+        clearTimeout(yelpTimeout);
+        self.yelpStatus(STATUS.success);
+        return data;
+      });
   }
 
   /** @description
-  *
+  * When all the ajax calls have returned, do this...
   */
   $.when(googleMaps(), getYelpData()).done(
     function(googleMaps, yelpData){
+      // TODO: Partition out the items so that I can add common properties
+      // to all items and specific type-related info to others
 
       /** @description
       * Populates the initial location list with the surf locations
       */
-      _.each(m.locationData, function(item){
-
+      _.each(m.locationData, function(element){
+        var item = element;
         item.marker = new google.maps.Marker({
           position: {
-            lat: item.location[0],
-            lng: item.location[1]},
+            lat: element.location[0],
+            lng: element.location[1]},
           map: self.map,
           icon: 'img/wave.png',
-          title: item.name
+          title: element.name
         });
 
         item.locType = 'surf';
+
+        // Placeholder for spot forecast data to be displayed
+        item.forecast = ko.observableArray([null]);
+
+        item.forecastStatus = ko.observable(STATUS.loading);
+
+        item.forecastRange = [];
+
+        // Stores all forecast data
+        item.forecastData = [];
+
+        // Show the first day of 8 intervals
+        item.currentRange = [0, OFFSET];
+
+        item.loadForecast = function(){
+          if(item.forecastStatus() !== STATUS.success){
+              var forecastTimeout = setTimeout(function(){
+                item.forecastStatus(STATUS.fail);
+              }, AJAX_TIMEOUT_LENGTH);
+              /** Get the magic seaweed info on the selected spot */
+              $.ajax('http://magicseaweed.com/api/884371cf4fc4156f6e7320b603e18a66/forecast/?spot_id=' +
+                item.spotID +
+                '&units=us&fields=swell.*,wind.*,timestamp', {
+                dataType: 'jsonp'
+              }).done(function(data){
+                  clearTimeout(forecastTimeout);
+                  item.forecastStatus(STATUS.success);
+                  item.forecastData = data;
+                  item.forecastRange = _.map(data, function(element){
+                      return element.swell.components.primary.height;
+                  });
+                  item.forecast(data.slice(0, OFFSET));
+                  item.currentDayIndex = OFFSET;
+            });
+          }
+        };
 
         item.isActive = ko.observable(false);
 
@@ -169,13 +204,13 @@ var NewportMesaViewModel = function() {
         });
 
         item.markerInfo = new google.maps.InfoWindow(
-          { content: '<div class="infoWindow"><h2>' + item.locName + '</h2></div>' }
+          { content: '<div class="infoWindow"><h2>' + element.locName + '</h2></div>' }
         );
 
         item.markerInfo.addListener('closeclick', function(){
             self.setCurrent(null);
         });
-        
+
         self.locations.push(item);
       });
 
@@ -223,25 +258,6 @@ var NewportMesaViewModel = function() {
       });
   });
 
-  /**
-  * @description Populates the map with markers
-  * Only fires if the map is loaded successfully
-  */
-  this.addLocationsToMap = function(map) {
-      var item = 'Newport Beach';
-      var marker = new google.maps.Marker({
-        position: {lat: m.mapCenter.lat, lng: m.mapCenter.lng },
-        map: map,
-        icon: 'img/anchor.png',
-        title: item
-      });
-      marker.addListener('click', function(){
-        self.setCurrent(item);
-      });
-  };
 };
 
-// Apply knockout bindings to DOM
-$(document).ready(function(){
-  ko.applyBindings(new NewportMesaViewModel(), document.querySelector('.newport-mesa-app'));
-});
+ko.applyBindings(new NewportMesaViewModel(), document.querySelector('.newport-mesa-app'));

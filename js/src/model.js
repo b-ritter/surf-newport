@@ -17,6 +17,12 @@ var Model = function() {
     lng: -117.9312093
   };
 
+  this.defaultLocation = {
+    locName: 'Newport Beach',
+    description: 'Newport Beach and Costa Mesa are neighboring cities in Orange County, CA.',
+    locType: 'default'
+  };
+
   // A list of permanent locations, with Magic Seaweed Spot ID code
   this.locationData = [{
     'locName': 'Newport Jetties',

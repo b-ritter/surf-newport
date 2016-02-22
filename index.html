@@ -42,9 +42,9 @@
           <!-- /ko -->
           <div class="map"></div>
         </section>
-        <section class="info">
-          <!-- ko if: currentLocationType() === 'biz' -->
-          <div class="infoWrapper" data-bind="with: currentLocation">
+        <section class="info" data-bind="with: currentLocation">
+          <!-- ko if: $data.locType === 'biz' -->
+          <div class="infoWrapper" >
               <div class="infoContact">
                 <a data-bind="attr: { href: $data.url }">
                   <h1 data-bind="text: $data.locName"></h1>
@@ -58,9 +58,33 @@
               </div>
             </div>
           <!-- /ko -->
-          <!-- ko if: currentLocationType() === 'surf' -->
-          <div class="info-data" data-bind="with: currentLocation">
-            <h1 data-bind="text: $data.locName"></h1>
+          <!-- ko if: $data.locType === 'surf' -->
+          <div class="info-data" >
+            <div class="infoWrapper forecast">
+              <div>
+                <h1 data-bind="text: $data.locName"></h1>
+                <p data-bind="text: $data.locDescription"></p>
+              </div>
+              <a href="http://magicseaweed.com"><img src="http://im-1-uk.msw.ms/msw_powered_by.png"></a>
+              <div data-bind="with: $data.forecast()[0]">
+                <h2 data-bind="text: moment(timestamp*1000).format('dddd, MMMM Do YYYY')"></h2>
+              </div>
+              <div class="chart">
+                <!-- ko if: $data.forecastStatus() === 'loading' -->
+                <p>Loading...</p>
+                <!-- /ko -->
+                <!-- ko if: $data.forecastStatus() === 'success' -->
+                <div data-bind="with: $data.forecast">
+                  <div data-bind="MSWswellChart: $data"></div>
+                </div>
+                <!-- /ko -->
+                <!-- ko if: $data.forecastStatus() === 'fail' -->
+                <p>Forecast failed to load. Please try again. </p>
+                <!-- /ko -->
+              </div>
+
+            </div>
+            <!-- /ko -->
           </div>
           <!-- /ko -->
 
