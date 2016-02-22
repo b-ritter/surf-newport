@@ -25,9 +25,9 @@
               <!-- /ko -->
               <!-- ko if: yelpStatus() === 'success' -->
               <div class="search-panel">
-                <input data-bind="textInput: searchTerm" type="text" name="mapFilter" placeholder="Filter Results">
+                <input data-bind="textInput: searchTerm, hasFocus: isSelected" type="text" name="mapFilter" placeholder="Filter Results">
               </div>
-              <ul data-bind="foreach: locations">
+              <ul data-bind="foreach: locationDisplay">
                 <li data-bind="text: $data.locName, click: function(){ $parent.setCurrent($data) }, css: { currentItem : $data.isActive() > 0 }"></li>
               </ul>
               <!-- /ko -->

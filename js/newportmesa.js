@@ -231,16 +231,45 @@ var NewportMesaViewModel = function() {
     if(item.locType === 'surf'){
       item.loadForecast();
     }
-    item.markerInfo.open(self.map, item.marker);
-    if(!item.marker.getAnimation()){
-      item.marker.setAnimation(google.maps.Animation.BOUNCE);
-      setTimeout(function(){
-        item.marker.setAnimation(null);
-      }, BOUNCE_DURATION);
+    if(item.locType !== 'default'){
+      item.markerInfo.open(self.map, item.marker);
+      if(!item.marker.getAnimation()){
+        item.marker.setAnimation(google.maps.Animation.BOUNCE);
+        setTimeout(function(){
+          item.marker.setAnimation(null);
+        }, BOUNCE_DURATION);
+      }
+      item.isActive(true);
     }
-    item.isActive(true);
     self.currentLocation(item);
   };
+
+  this.isSelected = ko.observable();
+
+  this.tempList = [];
+
+  this.locationDisplay = ko.computed(function(){
+    if(self.isSelected()){
+      self.setCurrent(m.defaultLocation);
+      self.tempList = _.filter(self.locations(), function(item){
+        var itemChars = item.locName.toLowerCase();
+        var searchTermChars = self.searchTerm().toLowerCase();
+        if(itemChars.indexOf(searchTermChars) !== -1){
+          return item;
+        }
+      });
+      return self.tempList;
+    } else if(!self.isSelected() && self.searchTerm() === ''){
+      return self.locations();
+    } else {
+      return self.tempList;
+    }
+
+
+  });
+
+
+
 
   /** @description
   * The Google Map request is jsonp. Error handling is not
@@ -383,7 +412,7 @@ var NewportMesaViewModel = function() {
         );
 
         item.markerInfo.addListener('closeclick', function(){
-            self.setCurrent(null);
+            self.setCurrent(m.defaultLocation);
         });
 
         self.locations.push(item);
@@ -424,7 +453,7 @@ var NewportMesaViewModel = function() {
         );
 
         item.markerInfo.addListener('closeclick', function(){
-            self.setCurrent(null);
+            self.setCurrent(m.defaultLocation);
         });
 
         item.locName = item.name;
