@@ -13,8 +13,12 @@ var Model = function() {
 
   // Center of the map: Newport Beach, CA
   this.mapCenter = {
-    lat: 33.623201,
-    lng: -117.9312093
+    lat: 33.6218095,
+    lng: -117.9121563
+  };
+
+  this.mapBounds = {
+
   };
 
   this.defaultLocation = {
@@ -22,6 +26,7 @@ var Model = function() {
     description: 'Newport Beach and Costa Mesa are neighboring cities in Orange County, CA.',
     locType: 'default'
   };
+
 
   // A list of permanent locations, with Magic Seaweed Spot ID code
   this.locationData = [{

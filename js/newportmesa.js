@@ -13,8 +13,12 @@ var Model = function() {
 
   // Center of the map: Newport Beach, CA
   this.mapCenter = {
-    lat: 33.623201,
-    lng: -117.9312093
+    lat: 33.6218095,
+    lng: -117.9121563
+  };
+
+  this.mapBounds = {
+
   };
 
   this.defaultLocation = {
@@ -22,6 +26,7 @@ var Model = function() {
     description: 'Newport Beach and Costa Mesa are neighboring cities in Orange County, CA.',
     locType: 'default'
   };
+
 
   // A list of permanent locations, with Magic Seaweed Spot ID code
   this.locationData = [{
@@ -221,7 +226,12 @@ var NewportMesaViewModel = function() {
 
   /** @description Sets the current Yelp or Surf spot item
   */
+
   this.setCurrent = function(item){
+    // map.getBounds().contains(markers[i].getPosition())
+    // console.log(self.map.getBounds());
+    self.map.fitBounds({ south: 33.57973569831782 , west: -117.97790119453123, north: 33.66664438606194, east: -117.88451740546873 });
+    self.map.setZoom(12);
     var previousLocation = self.currentLocation();
     if(previousLocation.locType !== 'default'){
       previousLocation.markerInfo.close();
@@ -255,7 +265,15 @@ var NewportMesaViewModel = function() {
         var itemChars = item.locName.toLowerCase();
         var searchTermChars = self.searchTerm().toLowerCase();
         if(itemChars.indexOf(searchTermChars) !== -1){
+          /** Check if the marker is NOT visible */
+          if(!item.marker.getVisible()){
+            /** If it wasn't visible, show it */
+            item.marker.setVisible(true);
+          }
           return item;
+        } else {
+          /** Turn off marker if it fails the filter test */
+          item.marker.setVisible(false);
         }
       });
       return self.tempList;
@@ -267,9 +285,6 @@ var NewportMesaViewModel = function() {
 
 
   });
-
-
-
 
   /** @description
   * The Google Map request is jsonp. Error handling is not
@@ -312,6 +327,7 @@ var NewportMesaViewModel = function() {
     yelpUrl = 'https://api.yelp.com/v2/search?',
     parameters = {
         bounds: '33.587063, -117.968421|33.671254, -117.867103',
+        //cll: String(m.mapCenter.lat) + String(m.mapCenter.lng),
         sort: '2',
         oauth_consumer_key : 'cxq1v3t-v5ZBP7fgQUCEkg',
         oauth_token : '_LqamVQhZLhs7LMDw62CeVXQPDfDVi_r',
@@ -329,7 +345,6 @@ var NewportMesaViewModel = function() {
     parameters.oauth_signature = signature;
 
     return $.ajax(yelpUrl,{
-            url: yelpUrl,
             jsonpCallback: 'cb',
             dataType: 'jsonp',
             data: parameters,
@@ -399,6 +414,29 @@ var NewportMesaViewModel = function() {
                   item.currentDayIndex = OFFSET;
             });
           }
+        };
+
+        item.loadNextForecast = function() {
+          this.setNextForecast(1);
+        };
+
+        item.loadPrevForecast = function() {
+          this.setNextForecast(-1);
+        };
+
+        item.setNextForecast = function(direction) {
+          /** Direction is 1 or -1
+          * Moves the range of forecast data to show up or down */
+          if( this.currentRange[0] + OFFSET * direction < 0 ){
+            this.currentRange = [this.forecastData.length - OFFSET, this.forecastData.length];
+          } else if (this.currentRange[1] + OFFSET * direction > this.forecastData.length){
+            this.currentRange = [0, OFFSET];
+          } else {
+             this.currentRange = this.currentRange.map( function(val) {
+              return val + OFFSET * direction;
+            });
+          }
+          this.forecast(this.forecastData.slice(this.currentRange[0], this.currentRange[1]));
         };
 
         item.isActive = ko.observable(false);
