@@ -48,19 +48,18 @@ h2 {
   margin: 0;
   font-size: 2vh; }
 
-#NewportMesaSearchPanel {
-  width: 100%; }
-
-#NewportMesaDisplayPanel {
+.newport-mesa-display-panel {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
   overflow: hidden; }
 
-#list {
-  width: 25vw;
-  overflow: hidden; }
+.search-panel {
+  width: 100%; }
+
+.list {
+  width: 25vw; }
 
 .list-items {
   height: 100%;
@@ -68,10 +67,10 @@ h2 {
   overflow: auto;
   padding-left: 3vh; }
 
-#mapContainer {
+.mapContainer {
   width: 75vw; }
 
-#map {
+.map {
   margin: 0 0 2vh 2vh;
   height: 90vh; }
 
@@ -176,28 +175,28 @@ input {
 @media (orientation: landscape) {
   header {
     height: 5vh; }
-  #NewportMesaDisplayPanel {
+  .newport-mesa-display-panel {
     height: 95vh; }
-  #info {
+  .info {
     width: 30vw; } }
 
 @media (orientation: portrait) {
-  #NewportMesaDisplayPanel {
+  .newport-mesa-display-panel {
     -webkit-flex-wrap: wrap;
         -ms-flex-wrap: wrap;
             flex-wrap: wrap; }
-  #list, #map {
+  .list, .map {
     height: calc(75vh * .95); }
-  #list {
+  .list {
     height: calc(60vh * .95); }
-  #mapContainer, #map {
+  .mapContainer, .map {
     height: calc(60vh * .95); }
-  #mapContainer {
+  .mapContainer {
     width: 56vw;
     margin-right: 2vh; }
-  #list {
+  .list {
     width: 40vw; }
-  #info {
+  .info {
     width: 100vw;
     /*min-height: calc(50vh * .95);*/ }
   .infoWrapper {
