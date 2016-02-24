@@ -91,7 +91,12 @@
             <!-- /ko -->
           </div>
           <!-- /ko -->
-
+          <!-- ko if: $data.locType === 'default' -->
+          <div class="infoWrapper" >
+            <h1 data-bind="text: $data.locName"></h1>
+            <p data-bind="text: $data.description"></p>
+          </div>
+          <!-- /ko -->
         </section>
     </div>
   </div>
