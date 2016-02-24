@@ -247,7 +247,7 @@ var NewportMesaViewModel = function() {
     });
 
     this.markerInfo = new google.maps.InfoWindow({
-      content: '<div class="infoWindow"><h2>' + element.locName + '</h2></div>'
+      content: '<div class="infoWindow"><h2>' + this.locName + '</h2></div>'
     });
 
     this.markerInfo.addListener('closeclick', function() {
@@ -413,87 +413,72 @@ var NewportMesaViewModel = function() {
       // TODO: Partition out the items so that I can add common properties
       // to all items and specific type-related info to others
       var yelpItems = yelpData[0].businesses,
-      businessLocations = [],
       surfLocations = [];
 
       _.each(m.locationData, function(item){
+        // Create new location
         var loc = new self.Loc(item, {
           locName: item.locName,
           lat: item.location[0],
           lng: item.location[1],
           icon: 'img/wave.png'
         });
+
+        // Set the spot id
         loc.spotID = item.spotID;
-        surfLocations.push(loc);
-      });
-
-      _.each(yelpItems, function(item){
-        var loc = new self.Loc(item, {
-          lat: item.location.coordinate.latitude,
-          lng: item.location.coordinate.longitude,
-          icon: 'img/anchor.png'
-        });
-        businessLocations.push(loc);
-      });
-
-      /** @description
-       * Populates the initial location list with the surf locations
-       */
-      _.each(surfLocations, function(element) {
-        var item = element;
 
         // Classify this as a surf location
-        item.locType = 'surf';
+        loc.locType = 'surf';
 
         // Placeholder for spot forecast data to be displayed
-        item.forecast = ko.observableArray([null]);
+        loc.forecast = ko.observableArray([null]);
 
         // Display loading status to user
-        item.forecastStatus = ko.observable(STATUS.loading);
+        loc.forecastStatus = ko.observable(STATUS.loading);
 
-        item.forecastRange = [];
+        loc.forecastRange = [];
 
         // Stores all forecast data
-        item.forecastData = [];
+        loc.forecastData = [];
 
         // Show the first day of 8 intervals
-        item.currentRange = [0, OFFSET];
+        loc.currentRange = [0, OFFSET];
 
         /**
         * @description Load the forecast for the chosen spot
         */
-        item.loadForecast = function() {
-          if (item.forecastStatus() !== STATUS.success) {
+        loc.loadForecast = function() {
+          if (loc.forecastStatus() !== STATUS.success) {
             var forecastTimeout = setTimeout(function() {
-              item.forecastStatus(STATUS.fail);
+              loc.forecastStatus(STATUS.fail);
             }, AJAX_TIMEOUT_LENGTH);
             /** Get the magic seaweed info on the selected spot */
             $.ajax('http://magicseaweed.com/api/884371cf4fc4156f6e7320b603e18a66/forecast/?spot_id=' +
-              item.spotID +
+              loc.spotID +
               '&units=us&fields=swell.*,wind.*,timestamp', {
                 dataType: 'jsonp'
               }).done(function(data) {
               clearTimeout(forecastTimeout);
-              item.forecastStatus(STATUS.success);
-              item.forecastData = data;
-              item.forecastRange = _.map(data, function(element) {
+              loc.forecastStatus(STATUS.success);
+              loc.forecastData = data;
+              loc.forecastRange = _.map(data, function(element) {
                 return element.swell.components.primary.height;
               });
-              item.forecast(data.slice(0, OFFSET));
-              item.currentDayIndex = OFFSET;
+              loc.forecast(data.slice(0, OFFSET));
+              loc.currentDayIndex = OFFSET;
             });
           }
         };
 
-        item.loadNextForecast = function() {
+        loc.loadNextForecast = function() {
           this.setNextForecast(1);
         };
 
-        item.loadPrevForecast = function() {
+        loc.loadPrevForecast = function() {
           this.setNextForecast(-1);
         };
 
-        item.setNextForecast = function(direction) {
+        loc.setNextForecast = function(direction) {
           /** Direction is 1 or -1
            * Moves the range of forecast data to show up or down */
           if (this.currentRange[0] + OFFSET * direction < 0) {
@@ -508,17 +493,21 @@ var NewportMesaViewModel = function() {
           this.forecast(this.forecastData.slice(this.currentRange[0], this.currentRange[1]));
         };
 
-        item.isActive = ko.observable(false);
+        loc.isActive = ko.observable(false);
 
-        self.locations.push(item);
+        // Add the surf location to list of locations
+        self.locations.push(loc);
       });
 
-      /** @description
-       * Adds Yelp locations to the map
-       */
-      _.each(yelpItems, function(item) {
-        var selfItem = item;
-        item.categories = item.categories.reduce(function(previousValue, currentValue, currentIndex, array) {
+      _.each(yelpItems, function(item){
+        var loc = new self.Loc(item, {
+          locName: item.name,
+          lat: item.location.coordinate.latitude,
+          lng: item.location.coordinate.longitude,
+          icon: 'img/anchor.png'
+        });
+
+        loc.categories = item.categories.reduce(function(previousValue, currentValue, currentIndex, array) {
           var separator = '';
           if (currentIndex < array.length - 1) {
             separator = ', ';
@@ -526,38 +515,22 @@ var NewportMesaViewModel = function() {
           return previousValue + currentValue[0] + separator;
         }, '');
 
-        item.marker = new google.maps.Marker({
-          position: {
-            lat: item.location.coordinate.latitude,
-            lng: item.location.coordinate.longitude
-          },
-          map: self.map,
-          icon: 'img/anchor.png',
-          title: item.name
-        });
+        loc.locType = 'biz';
 
-        item.locType = 'biz';
+        loc.snippet_text = item.snippet_text;
 
-        item.isActive = ko.observable(false);
+        loc.display_phone = item.display_phone;
 
-        item.marker.addListener('click', function() {
-          self.setCurrent(item);
-        });
+        loc.url = item.url;
 
-        self.mapBounds.extend(item.marker.getPosition());
+        loc.rating_img_url = item.rating_img_url;
 
-        item.markerInfo = new google.maps.InfoWindow({
-          content: '<div class="infoWindow"><h2>' + item.name + '</h2></div>'
-        });
+        loc.isActive = ko.observable(false);
 
-        item.markerInfo.addListener('closeclick', function() {
-          self.setCurrent(m.defaultLocation);
-        });
-
-        item.locName = item.name;
-
-        self.locations.push(item);
+        // Add the business location to list of locations
+        self.locations.push(loc);
       });
+
       self.map.fitBounds(self.mapBounds);
     });
 
