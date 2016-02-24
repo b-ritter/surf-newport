@@ -123,8 +123,8 @@ input {
   color: #2c3d67;
   font-weight: 300; }
 
-.chart {
-  padding-top: 3vh; }
+.descriptionText {
+  padding-bottom: 2vh; }
 
 .buttons {
   display: -webkit-box;
@@ -178,7 +178,9 @@ input {
   .newport-mesa-display-panel {
     height: 95vh; }
   .info {
-    width: 30vw; } }
+    width: 30vw; }
+  .chart {
+    padding-top: 3vh; } }
 
 @media (orientation: portrait) {
   .newport-mesa-display-panel {
@@ -208,7 +210,7 @@ input {
     -webkit-justify-content: space-between;
         -ms-flex-pack: justify;
             justify-content: space-between;
-    padding: 1em;
+    padding: 1vh;
     margin-top: 2vh;
     border-top: solid white .25em; }
   .intro {

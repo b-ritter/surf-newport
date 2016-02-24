@@ -142,8 +142,8 @@ input {
   font-weight: 300;
 }
 
-.chart {
-  padding-top: 3vh;
+.descriptionText {
+  padding-bottom: 2vh;
 }
 
 .buttons {
@@ -151,6 +151,7 @@ input {
   justify-content: space-between;
   padding-bottom: 1vh;
 }
+
 .axis line, .axis path {
   fill: none;
   stroke: #fff;
@@ -203,6 +204,9 @@ input {
     width: 30vw;
   }
 
+  .chart {
+    padding-top: 3vh;
+  }
 }
 
 @media (orientation: portrait){
@@ -240,7 +244,7 @@ input {
   .infoWrapper {
     display: flex;
     justify-content: space-between;
-    padding: 1em;
+    padding: 1vh;
     margin-top: 2vh;
     border-top: solid white .25em;
   }

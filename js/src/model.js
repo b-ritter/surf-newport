@@ -3,9 +3,6 @@ var Model = function() {
 
   var self = this;
 
-  // Checks if Yelp locations are loading
-
-
   // Checks if Yelp has Failed
   this.yelpFailed = ko.observable(false);
 

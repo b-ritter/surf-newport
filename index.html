@@ -63,17 +63,17 @@
             <div class="infoWrapper forecast">
               <div>
                 <h1 data-bind="text: $data.locName"></h1>
-                <p data-bind="text: $data.locDescription"></p>
+                <p data-bind="text: $data.locDescription" class="descriptionText"></p>
+                <a href="http://magicseaweed.com"><img src="http://im-1-uk.msw.ms/msw_powered_by.png" alt="Powered by Magic Seaweed"></a>
               </div>
-              <a href="http://magicseaweed.com"><img src="http://im-1-uk.msw.ms/msw_powered_by.png"></a>
-              <div data-bind="with: $data.forecast()[0]">
-                <h2 data-bind="text: moment(timestamp*1000).format('dddd, MMMM Do YYYY')"></h2>
-              </div>
-              <div class="buttons">
-                  <button data-bind="click: $data.loadPrevForecast" name="prev">Previous day</button>
-                  <button data-bind="click: $data.loadNextForecast" name="next">Next day</button>
-                </div>
               <div class="chart">
+                <div data-bind="with: $data.forecast()[0]">
+                  <h2 data-bind="text: moment(timestamp*1000).format('dddd, MMMM Do YYYY')"></h2>
+                </div>
+                <div class="buttons">
+                    <button data-bind="click: $data.loadPrevForecast" name="prev">Previous day</button>
+                    <button data-bind="click: $data.loadNextForecast" name="next">Next day</button>
+                </div>
                 <!-- ko if: $data.forecastStatus() === 'loading' -->
                 <p>Loading...</p>
                 <!-- /ko -->
