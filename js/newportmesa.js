@@ -356,7 +356,10 @@ var NewportMesaViewModel = function() {
           },
           zoomControl: true
         });
-        return data;
+
+        self.map.addListener('bounds_changed', function(){
+          // TODO: Not sure how to handle this
+        });
       });
   }
 
