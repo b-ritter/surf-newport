@@ -78,6 +78,9 @@ ul, li {
   list-style-type: none;
   cursor: pointer; }
 
+li {
+  padding-top: .25vh; }
+
 li:hover {
   color: #20c5f9; }
 

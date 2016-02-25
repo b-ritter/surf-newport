@@ -64,7 +64,6 @@ h2 {
 
 .list {
   width: 25vw;
-  // overflow: hidden;
 }
 
 .list-items {
@@ -88,6 +87,9 @@ ul, li {
   cursor: pointer;
 }
 
+li {
+  padding-top: .25vh;
+}
 li:hover {
   color: $newportBlueHighlight;
 }
