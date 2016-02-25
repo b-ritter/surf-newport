@@ -356,10 +356,6 @@ var NewportMesaViewModel = function() {
           },
           zoomControl: true
         });
-
-        self.map.addListener('bounds_changed', function(){
-          // TODO: Not sure how to handle this
-        });
       });
   }
 
@@ -413,8 +409,6 @@ var NewportMesaViewModel = function() {
   $.when(googleMaps(), getYelpData()).done(
     function(googleMaps, yelpData) {
 
-      // TODO: Partition out the items so that I can add common properties
-      // to all items and specific type-related info to others
       var yelpItems = yelpData[0].businesses,
       surfLocations = [];
 
@@ -431,7 +425,7 @@ var NewportMesaViewModel = function() {
         loc.spotID = item.spotID;
 
         loc.locDescription = item.locDescription;
-        
+
         // Classify this as a surf location
         loc.locType = 'surf';
 
@@ -538,10 +532,6 @@ var NewportMesaViewModel = function() {
 
       self.map.fitBounds(self.mapBounds);
     });
-
-    // self.map.fitBounds(self.mapBounds);
-    // Before loading the app, set the map bounds to contain all markers
-    // self.checkBounds();
 };
 
 ko.applyBindings(new NewportMesaViewModel(), document.querySelector('.newport-mesa-app'));
