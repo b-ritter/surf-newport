@@ -1,39 +1,56 @@
-/** Hardcode the location data for the surf spots since
-* these don't really change much over time. The spot
-* id is required for the magicseaweed api */
-var locationData = [
-  {
+var Model = function() {
+  'use strict';
+
+  var self = this;
+
+  // Checks if Yelp has Failed
+  this.yelpFailed = ko.observable(false);
+
+  // Center of the map: Newport Beach, CA
+  this.mapCenter = {
+    lat: 33.6218095,
+    lng: -117.9121563
+  };
+
+  this.mapBounds = {
+
+  };
+
+  this.defaultLocation = {
+    locName: 'Newport/Mesa',
+    description: 'Newport Beach and Costa Mesa are neighboring cities in Orange County, CA.',
+    locType: 'default'
+  };
+
+
+  // A list of permanent locations, with Magic Seaweed Spot ID code
+  this.locationData = [{
     'locName': 'Newport Jetties',
     'locDescription': 'Long stretch of beachbreak interspersed with several short, rock jetties.',
     'spotID': '665',
-    'location': [ 33.613733, -117.934251 ]
-  },
-  {
+    'location': [33.613733, -117.934251]
+  }, {
     'locName': 'Blackies',
     'spotID': '2575',
     'locDescription': 'Occasionally epic, long wintertime sandbar lefts north of Newport Pier, in front of Blackie’s Bar.',
-    'location': [ 33.609367, -117.930719 ]
-  },
-  {
+    'location': [33.609367, -117.930719]
+  }, {
     'locName': 'River Jetties',
     'spotID': '2599',
     'locDescription': 'Consistent, hollow peaks between the two jetties at the rivermouth.',
-    'location': [ 33.628515, -117.957601 ]
-  },
-  {
+    'location': [33.628515, -117.957601]
+  }, {
     'locName': 'The Wedge',
     'spotID': '287',
     'locDescription': 'World-famous freak wave dominated by bodysurfers and bodyboarders, although surfers do enjoy some degree of success.',
-    'location': [ 33.593311, -117.881968 ]
-  },
-
-  {
+    'location': [33.593311, -117.881968]
+  }, {
     'locName': 'Corona Del Mar',
     'spotID': '2579',
     'locDescription': 'Quality, long sandbar rights, only during solid S swells, break off the east (southside) jetty of Newport Harbor.',
-    'location': [ 33.592816, -117.877136 ]
-  }
-];
+    'location': [33.592816, -117.877136]
+  }];
+};
 
 /** Custom binding to handle the drawing of the swell data with d3 */
 ko.bindingHandlers.MSWswellChart = {
@@ -156,392 +173,365 @@ ko.bindingHandlers.MSWswellChart = {
 
 };
 
+var m = new Model();
 
-/**
-* @description Knockout.js ViewModel for the app
-*/
-var NewportViewModel = function(){
+var NewportMesaViewModel = function() {
+  'use strict';
+
+  // Constants
+  var AJAX_TIMEOUT_LENGTH = 8000, // How long to wait for Ajax calls
+    BOUNCE_DURATION = 2100, // Used for the markers
+    OFFSET = 8, // Used for the surf forecast
+    STATUS = { // Status states for various components of the app
+      loading: 'loading',
+      fail: 'fail',
+      success: 'success',
+      biz: 'biz',
+      default: 'default',
+      surf: 'surf'
+    };
+
+  // Store reference to ViewModel object
   var self = this;
-  this.locations = ko.computed(function(){
-      // Live filtering of locations
-      if(currentItem.locType !== 'default'){
-        currentItem.markerInfo().close();
-      }
 
-      var tempList = _.filter(locationList(), function(item){
-        var itemChars = item.locName().toLowerCase();
-        var searchTermChars = searchTerm().toLowerCase();
-        if(itemChars.indexOf(searchTermChars) !== -1){
+  // DOM element to bind to the map to
+  var $map = document.querySelector('.map');
+
+  // The Google Map itself
+  // Value set on success
+  this.map = null;
+
+  this.mapBounds = null;
+
+  // Get the search term from the input
+  this.searchTerm = ko.observable('');
+
+  // Checks if surf forecast is loading
+  this.mswForecastStatus = ko.observable(STATUS.loading);
+
+  // Reports Google Maps's status
+  this.googleMapsStatus = ko.observable(STATUS.loading);
+
+  // Reports Yelp's Status
+  this.yelpStatus = ko.observable(STATUS.loading);
+
+  // List of locations to be displayed
+  this.locations = ko.observableArray();
+
+  // Maintain a list of items currently visible
+  this.tempList = [];
+
+  // The current location item
+  this.currentLocation = ko.observable(m.defaultLocation);
+
+  /**
+  ** @constructor
+  ** @description Makes a location object
+  */
+  this.Loc = function(element, settings){
+    var selfLoc = this;
+    this.marker = new google.maps.Marker({
+      position: {
+        lat: settings.lat,
+        lng: settings.lng
+      },
+      map: self.map,
+      icon: settings.icon,
+      title: element.name
+    });
+
+    this.locName = settings.locName;
+
+    this.marker.addListener('click', function() {
+      self.setCurrent(selfLoc);
+    });
+
+    this.markerInfo = new google.maps.InfoWindow({
+      content: '<div class="infoWindow"><h2>' + this.locName + '</h2></div>'
+    });
+
+    this.markerInfo.addListener('closeclick', function() {
+      self.setCurrent(m.defaultLocation);
+    });
+
+    self.mapBounds.extend(this.marker.getPosition());
+  };
+
+  /** @description Sets the current Yelp or Surf spot item
+   */
+  this.setCurrent = function(item) {
+    var previousLocation = self.currentLocation();
+    if (previousLocation.locType !== 'default') {
+      previousLocation.markerInfo.close();
+      previousLocation.marker.setAnimation(null);
+      previousLocation.isActive(false);
+    }
+    if (item.locType === 'surf') {
+      item.loadForecast();
+    }
+    if (item.locType !== 'default') {
+      item.markerInfo.open(self.map, item.marker);
+      if (!item.marker.getAnimation()) {
+        item.marker.setAnimation(google.maps.Animation.BOUNCE);
+        setTimeout(function() {
+          item.marker.setAnimation(null);
+        }, BOUNCE_DURATION);
+      }
+      item.isActive(true);
+    }
+    self.currentLocation(item);
+  };
+
+  // Checks if the input box is selected
+  this.isSelected = ko.observable();
+
+  this.locationDisplay = ko.computed(function() {
+    if (self.isSelected()) {
+      self.setCurrent(m.defaultLocation);
+      self.tempList = _.filter(self.locations(), function(item) {
+        var itemChars = item.locName.toLowerCase();
+        var searchTermChars = self.searchTerm().toLowerCase();
+        if (itemChars.indexOf(searchTermChars) !== -1) {
           /** Check if the marker is NOT visible */
-          if(!item.marker().getVisible()){
+          if (!item.marker.getVisible()) {
             /** If it wasn't visible, show it */
-            item.marker().setVisible(true);
+            item.marker.setVisible(true);
           }
-          /** Give the item back to tempList to show it */
           return item;
         } else {
           /** Turn off marker if it fails the filter test */
-          item.marker().setVisible(false);
+          item.marker.setVisible(false);
         }
       });
-
-      if(tempList.length === 0){
-        // If there are no results that pass the filter,
-        // show them all
-        setCurrent(defaultLoc);
-        return locationList();
-      } else if (tempList.length === 1){
-        // If there is only one match, set it as the current item
-        setCurrent(tempList[0]);
-        currentItem.openInfoWindow();
-        return currentItem;
-      } else {
-        setCurrent(defaultLoc);
-        return tempList;
+      // Only check bounds if locations are being filtered
+      if(self.tempList.length !== self.locations().length){
+        self.checkBounds();
       }
+      return self.tempList;
+    } else if (!self.isSelected() && self.searchTerm() === '') {
+      return self.locations();
+    } else {
+      return self.tempList;
+    }
   });
 
-  this.showLocation = function(){
-    this.openInfoWindow();
-    setCurrent(this);
-  };
-
-  /* TODO: Remove or keep filter buttons */
-  this.showSurfSpots = function(){
-    locationList(self.filterByType('surf'));
-  };
-
-  this.showRestaurants = function(){
-    locationList(self.filterByType('biz'));
-  };
-
-  this.filterByType = function(type){
-    var locs = _.filter(locationList(), function(item){
-      if (item.locType === type){
-        return item;
+  /** @description
+  *
+  */
+  this.checkBounds = function(){
+    var markersOutOfBounds = [];
+    _.each(self.locationDisplay(), function(item){
+      if(!self.map.getBounds().contains(item.marker.getPosition())){
+          markersOutOfBounds.push(item);
       }
     });
-    return locs;
+    if(markersOutOfBounds.length > 0){
+      self.map.fitBounds(self.mapBounds);
+    }
   };
-};
 
+  /** @description
+   * The Google Map request is jsonp. Error handling is not
+   * built in, so use a setTimout to handle the error.
+   */
+  var googleMapsTimeout = setTimeout(function() {
+    self.googleMapsStatus(STATUS.fail);
+  }, AJAX_TIMEOUT_LENGTH);
 
-/**
-* @description Represents a location item
-* @constructor
-* @param {array} data - Location data
-* @returns Location object
-*/
-var Loc = function(data){
-  var self = this;
-  this.locName = ko.observable(data.locName);
-  this.isActive = ko.observable(false);
-  this.marker = ko.observable(data.marker);
-  this.markerInfo = ko.observable(data.markerInfo);
-  this.map = ko.observable(data.map);
-  // TODO: move surf-specific items into surf subclass
-  // this.phone = ko.observable(data.phone);
-  this.marker().addListener('click',function(){
-    self.openInfoWindow();
-  });
-  this.markerInfo().addListener('closeclick', function(){
-    setCurrent(defaultLoc);
-    searchTerm('');
-  });
-};
+  // Creates the map
+  function googleMaps() {
+    return $.ajax('https://maps.googleapis.com/maps/api/js?key=AIzaSyAtqzH53xQyC04PbQFV4brTqidjBzhr_dI', {
+        dataType: 'jsonp'
+      })
+      .done(function(data) {
+        clearTimeout(googleMapsTimeout);
+        self.googleMapsStatus(STATUS.success);
 
-/**
-* @description Opens info window for current item
-*/
-Loc.prototype.openInfoWindow = function(){
-  if(currentItem.locType !== 'default'){
-    currentItem.markerInfo().close();
-    currentItem.marker().setAnimation(null);
-  }
-  var self = this;
-  this.markerInfo().open(this.map(), this.marker());
-  if(!this.marker().getAnimation()){
-    this.marker().setAnimation(google.maps.Animation.BOUNCE);
-    setTimeout(function(){
-      self.marker().setAnimation(null);
-    }, markerAnimationCycleLength);
-  }
-  // setCurrent() sets an observable equal to the current item
-  setCurrent(this);
-};
+        self.mapBounds = new google.maps.LatLngBounds();
 
-/**
-* @description Represents a location item for a surf spot
-* @constructor
-* @param {array} data - Hard-coded Surf Location data
-* @returns Surf Location object
-*/
-SurfLoc = function(data){
-  var self = this;
-  this.locType = 'surf';
-  Loc.call(this, data);
-  this.forecast = ko.observableArray([null]);
-  this.forecastRange = [];
-  this.locDescription = data.locDescription;
-  this.forecastData = [];
-  /** There are 8 intervals of forecast data per day */
-  this.offset = 8;
-  /** Show the first day of 8 intervals */
-  this.currentRange = [0, 8];
-  this.spotID = data.spotID;
-  this.marker().addListener('click',function(){
-    self.loadInfo();
-    setCurrent(self);
-  });
-};
-
-SurfLoc.prototype = Object.create(Loc.prototype);
-SurfLoc.constructor = Loc;
-
-/**
-* @description Loads forecast info from Magic Seaweed API
-*/
-SurfLoc.prototype.loadInfo = function(){
-  var self = this;
-  if(self.forecast()[0] === null){
-    /** Get the magic seaweed info on the selected spot */
-    $.ajax({
-      url: 'http://magicseaweed.com/api/884371cf4fc4156f6e7320b603e18a66/forecast/?spot_id=' +
-      self.spotID +
-      '&units=us&fields=swell.*,wind.*,timestamp',
-      dataType: 'jsonp',
-      success: function(data){
-        self.forecastData = data;
-        self.forecastRange = _.map(data, function(element){
-            return element.swell.components.primary.height;
+        self.map = new google.maps.Map($map, {
+          center: {
+            lat: m.mapCenter.lat,
+            lng: m.mapCenter.lng
+          },
+          zoomControl: true
         });
-
-        self.forecast(data.slice(0, self.offset));
-        self.currentDayIndex = self.offset;
-      },
-      error: function(e){
-        self.forecast('Couldn\'t load forecast');
-      }
-    });
+      });
   }
-};
 
-/**
-* @description Loads the set of forecast info for the next day
-*/
-SurfLoc.prototype.loadNextForecast = function(){
-  /** There are 8 forecast intervals in one day
-  * Load the next 8 on click */
-  this.setNextForecast(1);
-};
+  /** @description
+   * Yelp is also a jsonp request. Use a timeout to handle error
+   */
+  var yelpTimeout = setTimeout(function() {
+    self.yelpStatus(STATUS.fail);
+  }, AJAX_TIMEOUT_LENGTH);
 
-/**
-* @description Loads the set of forecast info for the previous day
-*/
-SurfLoc.prototype.loadPrevForecast = function(){
-  // There are 8 forecast intervals in one day
-  this.setNextForecast(-1);
-};
-
-/**
-* @description Utility function to get next forecast
-* @returns Next forecast, either previous or next
-*/
-SurfLoc.prototype.setNextForecast = function(direction){
-  /** Direction is 1 or -1
-  * Moves the range of forecast data to show up or down */
-  var self = this;
-  if( this.currentRange[0] + this.offset * direction < 0 ){
-    this.currentRange = [this.forecastData.length - this.offset, this.forecastData.length];
-  } else if (this.currentRange[1] + this.offset * direction > this.forecastData.length){
-    this.currentRange = [0, this.offset];
-  } else {
-     this.currentRange = this.currentRange.map( function(val) {
-      return val + self.offset * direction;
-    });
-  }
-  this.forecast(this.forecastData.slice(this.currentRange[0], this.currentRange[1]));
-};
-
-/**
-* @description Represents a location item for a business
-* @constructor
-* @param {array} data - data from Yelp
-* @returns Business Location object
-*/
-BizLoc = function(data){
-  this.locType = 'biz';
-  this.snippet_text = data.businessInfo.snippet_text;
-  this.display_phone = data.businessInfo.display_phone;
-  this.url = data.businessInfo.url;
-  this.rating_img_url = data.businessInfo.rating_img_url;
-  this.categories = data.categories;
-  Loc.call(this,data);
-};
-
-BizLoc.prototype = Object.create(Loc.prototype);
-
-
-/** Google map and surf location parameters */
-var map,
-    mapCenter = { lat: 33.623201, lng: -117.9312093},
-    defaultLoc = { locType: 'default'},
-    currentItem = defaultLoc,
-    locationList = ko.observableArray([]),
-    searchTerm = ko.observable(''),
-    isLoading = ko.observable(true),
-    currentItemDisplay = ko.observable(currentItem),
-    categoryList = ko.observableArray([]),
-    markerAnimationCycleLength = 2100,
+  function getYelpData() {
     /** Yelp credentials and parameters */
-    httpMethod = 'GET',
-    yelpUrl = 'https://api.yelp.com/v2/search?',
-    parameters = {
+    var httpMethod = 'GET',
+      yelpUrl = 'https://api.yelp.com/v2/search?',
+      parameters = {
         bounds: '33.587063, -117.968421|33.671254, -117.867103',
+        //cll: String(m.mapCenter.lat) + String(m.mapCenter.lng),
         sort: '2',
-        oauth_consumer_key : 'cxq1v3t-v5ZBP7fgQUCEkg',
-        oauth_token : '_LqamVQhZLhs7LMDw62CeVXQPDfDVi_r',
-        oauth_nonce : Math.floor(Math.random() * 1e12).toString(),
-        oauth_timestamp : Math.floor(Date.now() / 1000),
-        oauth_signature_method : 'HMAC-SHA1',
+        oauth_consumer_key: 'cxq1v3t-v5ZBP7fgQUCEkg',
+        oauth_token: '_LqamVQhZLhs7LMDw62CeVXQPDfDVi_r',
+        oauth_nonce: Math.floor(Math.random() * 1e12).toString(),
+        oauth_timestamp: Math.floor(Date.now() / 1000),
+        oauth_signature_method: 'HMAC-SHA1',
         callback: 'cb'
-    },
-    consumerSecret = 'BAK4r2WoFYdc2nSoGrjD14pc7Bo',
-    tokenSecret = 'qb99XpkZ-lV26f7eNQ1nVofsGN8',
-    /** Create signature for the request */
-    signature = oauthSignature.generate(httpMethod, yelpUrl, parameters, consumerSecret, tokenSecret,
-       { encodeSignature: false});
+      },
+      consumerSecret = 'BAK4r2WoFYdc2nSoGrjD14pc7Bo',
+      tokenSecret = 'qb99XpkZ-lV26f7eNQ1nVofsGN8',
+      /** Create signature for the request */
+      signature = oauthSignature.generate(httpMethod, yelpUrl, parameters, consumerSecret, tokenSecret, {
+        encodeSignature: false
+      });
     /** Add the signature to the query string */
     parameters.oauth_signature = signature;
 
-/**
-* @description Utility function to set the state of the app
-* @param {object} item - Loc object to be set as the one and only current Loc
-*/
-function setCurrent(item) {
-  if (item.locType === 'surf'){
-    if(currentItem.locType !== 'default'){
-      currentItem.isActive(false);
-    }
-    item.isActive(true);
-    item.loadInfo();
-
-  } else if (item.locType === 'biz') {
-    if(currentItem.locType !== 'default'){
-      currentItem.isActive(false);
-    }
-    item.isActive(true);
-  } else if (item.locType === 'default' && currentItem.locType !== 'default'){
-    currentItem.isActive(false);
-  }
-  currentItem = item;
-  currentItemDisplay(item);
-}
-
-/**
-*@description Handles when the Google Maps API fails to load
-*/
-setTimeout(function() {
-  if(!window.google || !window.google.maps) {
-    $('#map').text("Bummer! Failed to load Google Maps");
-  }
-}, 5000);
-
-/**
-* @description Google Maps API callback. Kicks-off the whole app
-*/
-function initMap() {
-  /** First, we need to make the map object
-  * Markers need to reference this object */
-  map = new google.maps.Map(document.getElementById('map'), {
-    center: {lat: mapCenter.lat, lng: mapCenter.lng },
-    zoomControl: true,
-    zoom: 13
-  });
-
-  /** Resize map when the viewport is resized */
-  google.maps.event.addDomListener(window, 'resize', function() {
-   var center = map.getCenter();
-   google.maps.event.trigger(map, 'resize');
-   map.setCenter(center);
-  });
-
-  /** Make markers for each data item */
-  locationData.forEach(function(locationItem){
-    /** Create a marker */
-    var marker = new google.maps.Marker({
-      position: {lat: locationItem.location[0], lng: locationItem.location[1]},
-      map: map,
-      icon: 'img/wave.png',
-      title: locationItem.locName
-    });
-    /** Create a marker info window */
-    var markerInfo = new google.maps.InfoWindow(
-      {content: '<div class="infoWindow"><h2>'+locationItem.locName+'</h2></div>' }
-    );
-    /** Assign the map marker and info window to the locationItem,
-    * which is passed to Loc() to make an object with observable properties */
-    locationItem.marker = marker;
-    locationItem.markerInfo = markerInfo;
-    locationItem.map = map;
-    locationList.push(new SurfLoc(locationItem));
-  });
-
-  ko.applyBindings(new NewportViewModel(), document.getElementById('NewportMesaApp'));
-
-  /** Add Yelp data once the map is loaded */
-  google.maps.event.addListenerOnce(map, 'idle', function(){
-      /** When the map is loaded, add the other locations */
-      $.ajax({
-        url: yelpUrl,
+    return $.ajax(yelpUrl, {
         jsonpCallback: 'cb',
         dataType: 'jsonp',
         data: parameters,
-        cache: true,
-        success: function(data){
-          data.businesses.forEach(function(business){
-            var categories = business.categories.reduce(function(previousValue, currentValue, currentIndex, array){
-              var separator = '';
-              if(currentIndex < array.length-1){
-               separator = ', ';
-              }
-              return previousValue + currentValue[0] + separator;
-            }, '');
+        cache: true
+      })
+      .done(function(data) {
+        clearTimeout(yelpTimeout);
+        self.yelpStatus(STATUS.success);
+        return data;
+      });
+  }
 
-            var marker = new google.maps.Marker({
-              position: {
-                lat: business.location.coordinate.latitude,
-                lng: business.location.coordinate.longitude},
-              map: map,
-              icon: 'img/anchor.png',
-              title: business.name
+  /** @description
+   * When all the ajax calls have returned, do this...
+   */
+  $.when(googleMaps(), getYelpData()).done(
+    function(googleMaps, yelpData) {
+
+      var yelpItems = yelpData[0].businesses,
+      surfLocations = [];
+
+      _.each(m.locationData, function(item){
+        // Create new location
+        var loc = new self.Loc(item, {
+          locName: item.locName,
+          lat: item.location[0],
+          lng: item.location[1],
+          icon: 'img/wave.png'
+        });
+
+        // Set the spot id
+        loc.spotID = item.spotID;
+
+        loc.locDescription = item.locDescription;
+
+        // Classify this as a surf location
+        loc.locType = 'surf';
+
+        // Placeholder for spot forecast data to be displayed
+        loc.forecast = ko.observableArray([null]);
+
+        // Display loading status to user
+        loc.forecastStatus = ko.observable(STATUS.loading);
+
+        loc.forecastRange = [];
+
+        // Stores all forecast data
+        loc.forecastData = [];
+
+        // Show the first day of 8 intervals
+        loc.currentRange = [0, OFFSET];
+
+        /**
+        * @description Load the forecast for the chosen spot
+        */
+        loc.loadForecast = function() {
+          if (loc.forecastStatus() !== STATUS.success) {
+            var forecastTimeout = setTimeout(function() {
+              loc.forecastStatus(STATUS.fail);
+            }, AJAX_TIMEOUT_LENGTH);
+            /** Get the magic seaweed info on the selected spot */
+            $.ajax('http://magicseaweed.com/api/884371cf4fc4156f6e7320b603e18a66/forecast/?spot_id=' +
+              loc.spotID +
+              '&units=us&fields=swell.*,wind.*,timestamp', {
+                dataType: 'jsonp'
+              }).done(function(data) {
+              clearTimeout(forecastTimeout);
+              loc.forecastStatus(STATUS.success);
+              loc.forecastData = data;
+              loc.forecastRange = _.map(data, function(element) {
+                return element.swell.components.primary.height;
+              });
+              loc.forecast(data.slice(0, OFFSET));
+              loc.currentDayIndex = OFFSET;
             });
+          }
+        };
 
-            var markerInfo = new google.maps.InfoWindow(
-              { content: '<div class="infoWindow"><h2>' + business.name + '</h2></div>' }
-            );
+        loc.loadNextForecast = function() {
+          this.setNextForecast(1);
+        };
 
-            locationList.push(new BizLoc({
-              marker: marker,
-              markerInfo: markerInfo,
-              map: map,
-              locName: business.name,
-              categories: categories,
-              businessInfo: {
-                display_phone: business.display_phone,
-                url: business.url,
-                rating_img_url: business.rating_img_url,
-                snippet_text: business.snippet_text
-              }
-            }));
-          });
-          isLoading(false);
-        }
-      }).
-      fail(
-        function(){
-          // TODO: Give something back to Knockout
-        }
-      );
-  });
-}
+        loc.loadPrevForecast = function() {
+          this.setNextForecast(-1);
+        };
+
+        loc.setNextForecast = function(direction) {
+          /** Direction is 1 or -1
+           * Moves the range of forecast data to show up or down */
+          if (this.currentRange[0] + OFFSET * direction < 0) {
+            this.currentRange = [this.forecastData.length - OFFSET, this.forecastData.length];
+          } else if (this.currentRange[1] + OFFSET * direction > this.forecastData.length) {
+            this.currentRange = [0, OFFSET];
+          } else {
+            this.currentRange = this.currentRange.map(function(val) {
+              return val + OFFSET * direction;
+            });
+          }
+          this.forecast(this.forecastData.slice(this.currentRange[0], this.currentRange[1]));
+        };
+
+        loc.isActive = ko.observable(false);
+
+        // Add the surf location to list of locations
+        self.locations.push(loc);
+      });
+
+      _.each(yelpItems, function(item){
+        var loc = new self.Loc(item, {
+          locName: item.name,
+          lat: item.location.coordinate.latitude,
+          lng: item.location.coordinate.longitude,
+          icon: 'img/anchor.png'
+        });
+
+        loc.categories = item.categories.reduce(function(previousValue, currentValue, currentIndex, array) {
+          var separator = '';
+          if (currentIndex < array.length - 1) {
+            separator = ', ';
+          }
+          return previousValue + currentValue[0] + separator;
+        }, '');
+
+        loc.locType = 'biz';
+
+        loc.snippet_text = item.snippet_text;
+
+        loc.display_phone = item.display_phone;
+
+        loc.url = item.url;
+
+        loc.rating_img_url = item.rating_img_url;
+
+        loc.isActive = ko.observable(false);
+
+        // Add the business location to list of locations
+        self.locations.push(loc);
+      });
+
+      self.map.fitBounds(self.mapBounds);
+    });
+};
+
+ko.applyBindings(new NewportMesaViewModel(), document.querySelector('.newport-mesa-app'));

@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   width: 100%;
@@ -9,7 +10,11 @@ html, body {
   font-weight: 300;
   font-size: 2.2vh; }
 
-ul, li, h1, p, a {
+ul,
+li,
+h1,
+p,
+a {
   margin: 0;
   padding: 0; }
 
@@ -40,7 +45,7 @@ header {
 
 header h1 {
   font-size: 4vh;
-  font-family: "industry-inc-stencil";
+  font-family: "industry-inc-stencil", sans-serif;
   width: 70vw;
   padding-left: 3vh; }
 
@@ -48,19 +53,18 @@ h2 {
   margin: 0;
   font-size: 2vh; }
 
-#NewportMesaSearchPanel {
-  width: 100%; }
-
-#NewportMesaDisplayPanel {
+.newport-mesa-display-panel {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
   overflow: hidden; }
 
-#list {
-  width: 25vw;
-  overflow: hidden; }
+.search-panel {
+  width: 100%; }
+
+.list {
+  width: 25vw; }
 
 .list-items {
   height: 100%;
@@ -68,16 +72,20 @@ h2 {
   overflow: auto;
   padding-left: 3vh; }
 
-#mapContainer {
+.mapContainer {
   width: 75vw; }
 
-#map {
+.map {
   margin: 0 0 2vh 2vh;
   height: 90vh; }
 
-ul, li {
+ul,
+li {
   list-style-type: none;
   cursor: pointer; }
+
+li {
+  padding-top: .25vh; }
 
 li:hover {
   color: #20c5f9; }
@@ -120,12 +128,12 @@ input {
   font-style: italic; }
 
 .infoWindow {
-  font-family: "Oswald";
+  font-family: "Oswald", sans-serif;
   color: #2c3d67;
   font-weight: 300; }
 
-.chart {
-  padding-top: 3vh; }
+.descriptionText {
+  padding-bottom: 2vh; }
 
 .buttons {
   display: -webkit-box;
@@ -138,7 +146,8 @@ input {
           justify-content: space-between;
   padding-bottom: 1vh; }
 
-.axis line, .axis path {
+.axis line,
+.axis path {
   fill: none;
   stroke: #fff;
   stroke-width: 0;
@@ -176,28 +185,30 @@ input {
 @media (orientation: landscape) {
   header {
     height: 5vh; }
-  #NewportMesaDisplayPanel {
+  .newport-mesa-display-panel {
     height: 95vh; }
-  #info {
-    width: 30vw; } }
+  .info {
+    width: 30vw; }
+  .chart {
+    padding-top: 3vh; } }
 
 @media (orientation: portrait) {
-  #NewportMesaDisplayPanel {
+  .newport-mesa-display-panel {
     -webkit-flex-wrap: wrap;
         -ms-flex-wrap: wrap;
             flex-wrap: wrap; }
-  #list, #map {
+  .list, .map {
     height: calc(75vh * .95); }
-  #list {
+  .list {
     height: calc(60vh * .95); }
-  #mapContainer, #map {
+  .mapContainer, .map {
     height: calc(60vh * .95); }
-  #mapContainer {
+  .mapContainer {
     width: 56vw;
     margin-right: 2vh; }
-  #list {
+  .list {
     width: 40vw; }
-  #info {
+  .info {
     width: 100vw;
     /*min-height: calc(50vh * .95);*/ }
   .infoWrapper {
@@ -209,7 +220,7 @@ input {
     -webkit-justify-content: space-between;
         -ms-flex-pack: justify;
             justify-content: space-between;
-    padding: 1em;
+    padding: 1vh;
     margin-top: 2vh;
     border-top: solid white .25em; }
   .intro {

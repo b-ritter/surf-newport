@@ -2,8 +2,15 @@
 
 Newport/Mesa Surf is a surf report and neighborhood guide to Newport Beach and
 Costa Mesa, California. It gets its data from three data APIs: Google Maps,
-Yelp and Magic Seaweed. You'll have to run this site on a local server in
-order to get things going. Using Python 2's built-in server is pretty handy:
+Yelp and Magic Seaweed.
+
+## Instructions
+
+Download or fork the application [from GitHub](https://github.com/b-ritter/surf-newport).
+You can see a live version [here on GitHub pages](http://b-ritter.github.io/surf-newport/).
+Once you have the files, open up index.html in a web browser to get it running.
+You'll have to run this site on a local server in order to get things going.
+Using Python 2's built-in server is pretty handy: 
 `python -m SimpleHTTPServer [your port number, eg. 8888]`.
 
 ## Front-End Framework
