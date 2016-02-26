@@ -201,7 +201,11 @@ var NewportMesaViewModel = function() {
   // Value set on success
   this.map = null;
 
+  // Map bounds gets updated as location items are added
   this.mapBounds = null;
+
+  // Used to adjust map bounds
+  var ticking = false;
 
   // Get the search term from the input
   this.searchTerm = ko.observable('');
@@ -315,7 +319,7 @@ var NewportMesaViewModel = function() {
     }
   });
 
-  /** @description
+  /** @description Will fit the markers to bounds when a query is performed
   *
   */
   this.checkBounds = function(){
@@ -340,9 +344,7 @@ var NewportMesaViewModel = function() {
 
   // Creates the map
   function googleMaps() {
-    return $.ajax('https://maps.googleapis.com/maps/api/js?key=AIzaSyAtqzH53xQyC04PbQFV4brTqidjBzhr_dI', {
-        dataType: 'jsonp'
-      })
+    return $.getScript('https://maps.googleapis.com/maps/api/js?key=AIzaSyAtqzH53xQyC04PbQFV4brTqidjBzhr_dI')
       .done(function(data) {
         clearTimeout(googleMapsTimeout);
         self.googleMapsStatus(STATUS.success);
@@ -532,6 +534,32 @@ var NewportMesaViewModel = function() {
 
       self.map.fitBounds(self.mapBounds);
     });
+
+    /** Bounds adjustment optimization inspired by
+    * Paul Lewis: http://www.html5rocks.com/en/tutorials/speed/animations/
+    */
+    $(window).on('resize', function(){
+      requestTick();
+    });
+
+    /**
+    * @description Adjusts the bounds of the map on resize
+    */
+    function update(){
+      self.map.fitBounds(self.mapBounds);
+      ticking = false;
+    }
+    /**
+     * @description Calls rAF if it's not already
+     * been done already.
+     */
+    function requestTick() {
+        if(!ticking) {
+            requestAnimationFrame(update);
+            ticking = true;
+        }
+    }
+
 };
 
 ko.applyBindings(new NewportMesaViewModel(), document.querySelector('.newport-mesa-app'));
