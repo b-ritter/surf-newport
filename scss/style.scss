@@ -1,5 +1,11 @@
 $newportBlue: #2c3d67;
 $newportBlueHighlight: #20c5f9;
+$outerSpacing: 2vw;
+$columnSpacing: 1vw;
+@function gridSpacing($cols) {
+  @return $outerSpacing + 1 / $cols * $columnSpacing;
+}
+$quotePadding: 1em;
 
 html,
 body {
@@ -17,6 +23,7 @@ body {
 ul,
 li,
 h1,
+h4,
 p,
 a {
   margin: 0; padding: 0;
@@ -33,24 +40,19 @@ h1 {
 
 a h1 {
   display: inline;
-  border-bottom: .125em solid white;
+}
+
+a h1:hover {
+  color: $newportBlueHighlight;
 }
 
 h4 + p {
   padding-bottom: 1em;
 }
 
-header {
-  display: flex;
-  justify-content: space-between;
-  /*margin: 2vh 0 0 2vh;*/
-}
-
 header h1 {
   font-size: 4vh;
   font-family: "industry-inc-stencil", sans-serif;
-  width: 70vw;
-  padding-left: 3vh;
 }
 
 h2 {
@@ -58,9 +60,14 @@ h2 {
   font-size: 2vh;
 }
 
+.wrapper {
+  margin: 0 $outerSpacing;
+}
+
 .newport-mesa-display-panel {
   display: flex;
   overflow: hidden;
+  justify-content: space-between;
 }
 
 .search-panel {
@@ -68,22 +75,20 @@ h2 {
 }
 
 .list {
-  width: 25vw;
+  width: 25vw - gridSpacing(2);
+  box-sizing: content-box;
 }
 
 .list-items {
   height: 100%;
   width: 100%;
-  overflow: auto;
-  padding-left: 3vh;
-}
 
-.mapContainer {
-  width: 75vw;
+  overflow: auto;
 }
 
 .map {
-  margin: 0 0 2vh 2vh;
+  box-sizing: content-box;
+  // margin: 0 0 2vh 2vh;
   height: 90vh;
 }
 
@@ -115,18 +120,8 @@ input {
 
 }
 
-.infoWrapper {
-  margin: 0 2vh;
-}
-
-.infoQuote {
-  background-color: white;
-  color: $newportBlue;
-  padding: .5em;
-  border-top-left-radius: 1em;
-  border-top-right-radius: 1em;
-  border-bottom-right-radius: 1em;
-  border-bottom-left-radius: 1em;
+.mswImage {
+  max-width: 100%;
 }
 
 .currentItem {
@@ -144,6 +139,25 @@ input {
 
 .snippet {
   font-style: italic;
+}
+
+.info {
+  display: flex;
+  flex-wrap: wrap;
+  .header {
+    width: 100%;
+  }
+}
+
+.infoQuote {
+  background-color: white;
+  color: $newportBlue;
+  padding: $quotePadding;
+  border-top-left-radius: 1em;
+  border-top-right-radius: 1em;
+  border-bottom-right-radius: 1em;
+  border-bottom-left-radius: 1em;
+  width: 50%;
 }
 
 .infoWindow {
@@ -212,7 +226,20 @@ input {
   }
 
   .info {
-    width: 30vw;
+    flex-direction: column;
+    width: 25vw - gridSpacing(2);
+  }
+
+  .infoContact{
+    width: 100%;
+  }
+
+  .infoQuote {
+    width: calc(100% - 2em);
+  }
+
+  .mapContainer {
+    width: 50vw - gridSpacing(2);
   }
 
   .chart {
@@ -239,42 +266,25 @@ input {
   }
 
   .mapContainer {
-    width: 56vw;
-    margin-right: 2vh;
+    width: 60vw - gridSpacing(1);
   }
 
   .list {
-    width: 40vw;
+    width: 40vw - gridSpacing(1);
   }
 
   .info {
     width: 100vw;
-    /*min-height: calc(50vh * .95);*/
-  }
-
-  .infoWrapper {
-    display: flex;
-    justify-content: space-between;
-    padding: 1vh;
+    border-top: 2px solid white;
     margin-top: 2vh;
-    border-top: solid white .25em;
   }
 
-  .intro {
-    flex-wrap: wrap;
-    padding-right: 3vh;
-  }
-
-  .intro p {
-    width: 100%;
-  }
-
-  .infoContact, .infoQuote{
+  .infoContact {
     width: 50%;
   }
 
-  .forecast>div {
-    width: 50%;
+  .infoQuote{
+    width: calc(50% - 2em);
   }
 
 }

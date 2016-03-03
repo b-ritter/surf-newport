@@ -1,8 +1,6 @@
 var Model = function() {
   'use strict';
 
-  var self = this;
-
   // Checks if Yelp has Failed
   this.yelpFailed = ko.observable(false);
 
