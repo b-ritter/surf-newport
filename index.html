@@ -8,7 +8,7 @@
     <link href="css/style.css" rel="stylesheet">
   </head>
   <body>
-    <div data-bind="visible: true" style="display: none">
+    <div data-bind="visible: true" style="display: none" class="wrapper">
       <header>
         <h1>Newport/Mesa Surf</h1>
       </header>
@@ -44,58 +44,52 @@
         </section>
         <section class="info" data-bind="with: currentLocation">
           <!-- ko if: $data.locType === 'biz' -->
-          <div class="infoWrapper" >
-              <div class="infoContact">
-                <a data-bind="attr: { href: $data.url }">
-                  <h1 data-bind="text: $data.locName"></h1>
-                </a>
-                <h4 data-bind="text: $data.display_phone"></h4>
-                <p data-bind="text: $data.categories"></p>
-              </div>
-              <div class="infoQuote">
-                <p data-bind="text: $data.snippet_text" class="snippet"></p>
-                <img data-bind="attr: { src: $data.rating_img_url }"/>
-              </div>
-            </div>
+          <div class="header">
+            <a data-bind="attr: { href: $data.url }">
+              <h1 data-bind="text: $data.locName"></h1>
+            </a>
+          </div>
+          <div class="infoContact">
+            <h4 data-bind="text: $data.display_phone"></h4>
+            <p data-bind="text: $data.categories"></p>
+          </div>
+          <div class="infoQuote">
+            <p data-bind="text: $data.snippet_text" class="snippet"></p>
+            <img data-bind="attr: { src: $data.rating_img_url }"/>
+          </div>
           <!-- /ko -->
           <!-- ko if: $data.locType === 'surf' -->
-          <div class="info-data" >
-            <div class="infoWrapper forecast">
-              <div>
-                <h1 data-bind="text: $data.locName"></h1>
-                <p data-bind="text: $data.locDescription" class="descriptionText"></p>
-                <a href="http://magicseaweed.com"><img src="img/msw_powered_by.png" alt="Powered by Magic Seaweed"></a>
-              </div>
-              <div class="chart">
-                <div data-bind="with: $data.forecast()[0]">
-                  <h2 data-bind="text: moment(timestamp*1000).format('dddd, MMMM Do YYYY')"></h2>
-                </div>
-                <div class="buttons">
-                    <button data-bind="click: $data.loadPrevForecast" name="prev">Previous day</button>
-                    <button data-bind="click: $data.loadNextForecast" name="next">Next day</button>
-                </div>
-                <!-- ko if: $data.forecastStatus() === 'loading' -->
-                <p>Loading...</p>
-                <!-- /ko -->
-                <!-- ko if: $data.forecastStatus() === 'success' -->
-                <div data-bind="with: $data.forecast">
-                  <div data-bind="MSWswellChart: $data"></div>
-                </div>
-                <!-- /ko -->
-                <!-- ko if: $data.forecastStatus() === 'fail' -->
-                <p>Forecast failed to load. Please try again. </p>
-                <!-- /ko -->
-              </div>
-
+          <div class="header">
+            <h1 data-bind="text: $data.locName"></h1>
+            <p data-bind="text: $data.locDescription" class="descriptionText"></p>
+            <a href="http://magicseaweed.com"><img src="img/msw_powered_by.png" alt="Powered by Magic Seaweed" class="mswImage"></a>
+          </div>
+          <div class="chart">
+            <div data-bind="with: $data.forecast()[0]">
+              <h2 data-bind="text: moment(timestamp*1000).format('dddd, MMMM Do YYYY')"></h2>
             </div>
+            <div class="buttons">
+                <button data-bind="click: $data.loadPrevForecast" name="prev">Previous day</button>
+                <button data-bind="click: $data.loadNextForecast" name="next">Next day</button>
+            </div>
+            <!-- ko if: $data.forecastStatus() === 'loading' -->
+            <p>Loading...</p>
+            <!-- /ko -->
+            <!-- ko if: $data.forecastStatus() === 'success' -->
+            <div data-bind="with: $data.forecast">
+              <div data-bind="MSWswellChart: $data"></div>
+            </div>
+            <!-- /ko -->
+            <!-- ko if: $data.forecastStatus() === 'fail' -->
+            <p>Forecast failed to load. Please try again. </p>
             <!-- /ko -->
           </div>
           <!-- /ko -->
           <!-- ko if: $data.locType === 'default' -->
-          <div class="infoWrapper" >
+          <header>
             <h1 data-bind="text: $data.locName"></h1>
             <p data-bind="text: $data.description"></p>
-          </div>
+          </header>
           <!-- /ko -->
         </section>
     </div>

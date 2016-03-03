@@ -13,6 +13,7 @@ body {
 ul,
 li,
 h1,
+h4,
 p,
 a {
   margin: 0;
@@ -26,57 +27,50 @@ h1 {
   font-size: 3vh; }
 
 a h1 {
-  display: inline;
-  border-bottom: .125em solid white; }
+  display: inline; }
+
+a h1:hover {
+  color: #20c5f9; }
 
 h4 + p {
   padding-bottom: 1em; }
 
-header {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-      -ms-flex-pack: justify;
-          justify-content: space-between;
-  /*margin: 2vh 0 0 2vh;*/ }
-
 header h1 {
   font-size: 4vh;
-  font-family: "industry-inc-stencil", sans-serif;
-  width: 70vw;
-  padding-left: 3vh; }
+  font-family: "industry-inc-stencil", sans-serif; }
 
 h2 {
   margin: 0;
   font-size: 2vh; }
+
+.wrapper {
+  margin: 0 2vw; }
 
 .newport-mesa-display-panel {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  overflow: hidden; }
+  overflow: hidden;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+      -ms-flex-pack: justify;
+          justify-content: space-between; }
 
 .search-panel {
   width: 100%; }
 
 .list {
-  width: 25vw; }
+  width: 22.5vw;
+  box-sizing: content-box; }
 
 .list-items {
   height: 100%;
   width: 100%;
-  overflow: auto;
-  padding-left: 3vh; }
-
-.mapContainer {
-  width: 75vw; }
+  overflow: auto; }
 
 .map {
-  margin: 0 0 2vh 2vh;
+  box-sizing: content-box;
   height: 90vh; }
 
 ul,
@@ -102,17 +96,8 @@ input {
   border-radius: .5em;
   border: none; }
 
-.infoWrapper {
-  margin: 0 2vh; }
-
-.infoQuote {
-  background-color: white;
-  color: #2c3d67;
-  padding: .5em;
-  border-top-left-radius: 1em;
-  border-top-right-radius: 1em;
-  border-bottom-right-radius: 1em;
-  border-bottom-left-radius: 1em; }
+.mswImage {
+  max-width: 100%; }
 
 .currentItem {
   font-weight: 400;
@@ -126,6 +111,27 @@ input {
 
 .snippet {
   font-style: italic; }
+
+.info {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+      -ms-flex-wrap: wrap;
+          flex-wrap: wrap; }
+  .info .header {
+    width: 100%; }
+
+.infoQuote {
+  background-color: white;
+  color: #2c3d67;
+  padding: 1em;
+  border-top-left-radius: 1em;
+  border-top-right-radius: 1em;
+  border-bottom-right-radius: 1em;
+  border-bottom-left-radius: 1em;
+  width: 50%; }
 
 .infoWindow {
   font-family: "Oswald", sans-serif;
@@ -188,7 +194,18 @@ input {
   .newport-mesa-display-panel {
     height: 95vh; }
   .info {
-    width: 30vw; }
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+        -ms-flex-direction: column;
+            flex-direction: column;
+    width: 22.5vw; }
+  .infoContact {
+    width: 100%; }
+  .infoQuote {
+    width: calc(100% - 2em); }
+  .mapContainer {
+    width: 47.5vw; }
   .chart {
     padding-top: 3vh; } }
 
@@ -204,33 +221,14 @@ input {
   .mapContainer, .map {
     height: calc(60vh * .95); }
   .mapContainer {
-    width: 56vw;
-    margin-right: 2vh; }
+    width: 57vw; }
   .list {
-    width: 40vw; }
+    width: 37vw; }
   .info {
     width: 100vw;
-    /*min-height: calc(50vh * .95);*/ }
-  .infoWrapper {
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-pack: justify;
-    -webkit-justify-content: space-between;
-        -ms-flex-pack: justify;
-            justify-content: space-between;
-    padding: 1vh;
-    margin-top: 2vh;
-    border-top: solid white .25em; }
-  .intro {
-    -webkit-flex-wrap: wrap;
-        -ms-flex-wrap: wrap;
-            flex-wrap: wrap;
-    padding-right: 3vh; }
-  .intro p {
-    width: 100%; }
-  .infoContact, .infoQuote {
+    border-top: 2px solid white;
+    margin-top: 2vh; }
+  .infoContact {
     width: 50%; }
-  .forecast > div {
-    width: 50%; } }
+  .infoQuote {
+    width: calc(50% - 2em); } }
