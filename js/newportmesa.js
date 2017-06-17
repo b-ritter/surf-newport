@@ -342,7 +342,7 @@ var NewportMesaViewModel = function() {
 
   // Creates the map
   function googleMaps() {
-    return $.getScript('https://maps.googleapis.com/maps/api/js?key=AIzaSyAtqzH53xQyC04PbQFV4brTqidjBzhr_dI')
+    return $.getScript('https://maps.googleapis.com/maps/api/js?key=AIzaSyBNgpOMDgmCK24cx2dOS543xq-uGsnU5RY')
       .done(function(data) {
         clearTimeout(googleMapsTimeout);
         self.googleMapsStatus(STATUS.success);
